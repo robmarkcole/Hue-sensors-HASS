@@ -1,22 +1,37 @@
 """
 Sensor for checking the status of Hue sensors.
 """
+import json
 import logging
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import requests
 
+from homeassistant.const import (CONF_FILENAME)
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
 
 _LOGGER = logging.getLogger(__name__)
+PHUE_CONFIG_FILE = 'phue.conf'
 SCAN_INTERVAL = timedelta(seconds=1)
-URL = 'http://192.168.0.YOURS/api/your_pass/sensors'
+
+
+def load_conf(filepath):
+    """Return the URL for API requests."""
+    with open(filepath, 'r') as fp:
+        data = json.load(fp)
+        ip = list(data.keys())[0]
+        username = data[ip]['username']
+        url = 'http://' + ip + '/api/' + username + '/sensors'
+    return url
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
     """Set up the Tube sensor."""
-    data = HueSensorData()
+    filename = config.get(CONF_FILENAME, PHUE_CONFIG_FILE)  # returns the IP
+    filepath = hass.config.path(filename)
+    url = load_conf(filepath)
+    data = HueSensorData(url)
     data.update()
     sensors = []
     for key in data.data.keys():
@@ -27,15 +42,16 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 class HueSensorData(object):
     """Get the latest sensor data."""
 
-    def __init__(self):
+    def __init__(self, url):
         """Initialize the object."""
+        self.url = url
         self.data = None
 
     # Update only once in scan interval.
     @Throttle(SCAN_INTERVAL)
     def update(self):
         """Get the latest data"""
-        response = requests.get(URL)
+        response = requests.get(self.url)
         if response.status_code != 200:
             _LOGGER.warning("Invalid response from API")
         else:
