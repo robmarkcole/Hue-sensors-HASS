@@ -1,0 +1,15 @@
+default_view:
+  view: yes
+  entities:
+    - group.Hue
+
+Hue:
+  entities:
+    - sensor.bedroom_motion_sensor
+    - sensor.hall_motion_sensor
+    - sensor.living_room_motion_sensor
+    - sensor.living_room_temperature
+    - sensor.living_room_light_level
+    - sensor.living_room_remote
+    - sensor.remote_bedroom
+    - sensor.robins_iphone

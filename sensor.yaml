@@ -1,0 +1,10 @@
+- platform: hue_sensors
+
+- platform: template
+  sensors:
+    living_room_temperature:
+      friendly_name: 'Living room temperature'
+      value_template: '{{states.sensor.living_room_motion_sensor.attributes.temperature}}'
+    living_room_light_level:
+      friendly_name: 'Living room light level'
+      value_template: '{{states.sensor.living_room_motion_sensor.attributes.light_level}}'
