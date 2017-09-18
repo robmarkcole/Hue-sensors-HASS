@@ -17,9 +17,9 @@ from homeassistant.util import Throttle
 _LOGGER = logging.getLogger(__name__)
 PHUE_CONFIG_FILE = 'phue.conf'
 SCAN_INTERVAL = timedelta(seconds=1)
-#... I preffer this naming, but happy to match yours
-# TAP_BUTTON_NAMES = {34 : 'Off', 16:'button 1', 17:'button 2', 18:'button 3'}
-TAP_BUTTON_NAMES = {34 : '1_click', 16:'2_click', 17:'3_click', 18:'4_click'}
+TAP_BUTTON_NAMES = {34: '1_click', 16: '2_click', 17: '3_click', 18: '4_click'}
+
+
 def load_conf(filepath):
     """Return the URL for API requests."""
     with open(filepath, 'r') as file_path:
@@ -105,10 +105,10 @@ class HueSensor(Entity):
                 self._hue_id]['light_level']
             self._attributes['temperature'] = self._data.data[
                 self._hue_id]['temperature']
-        elif self._model in ['RWL021','ZGPSWITCH']:
+        elif self._model in ['RWL021', 'ZGPSWITCH']:
             self.ICON = 'mdi:remote'
             self._attributes['last updated'] = self._data.data[
-                self._hue_id]['last_updated']                
+                self._hue_id]['last_updated']
         elif self._model == 'Geofence':
             self.ICON = 'mdi:cellphone'
 
