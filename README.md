@@ -9,7 +9,7 @@ Add to your config:
 
 ```
 sensor:
-  - platform: hue_sensors
+  - platform: hue
 ```
 
 <img src="https://github.com/robmarkcole/Hue-sensors-HASS/blob/master/hue.png">
