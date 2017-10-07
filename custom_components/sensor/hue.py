@@ -19,8 +19,8 @@ PHUE_CONFIG_FILE = 'phue.conf'
 SCAN_INTERVAL = timedelta(seconds=1)
 
 REQUIREMENTS = ['https://github.com/robmarkcole/Hue-sensors/archive/'
-                'v0.2.zip'
-                '#hue_sensors==v0.2']
+                'v0.3.zip'
+                '#hue_sensors==v0.3']
 
 
 def load_conf(filepath):
