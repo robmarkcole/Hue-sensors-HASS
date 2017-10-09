@@ -3,7 +3,7 @@ Custom component for Hue sensors in Home-assistant, continues: https://www.hacks
 
 Place the custom_components folder in your hass config director, and place the contents of components in your components directory (this is the hub component). Setup assumes you have already configured the Hue component and have the file phue.conf in your hass config dir.
 
-Hue remote can be used for a click and long press (hold button for 2 sec and see LED blink twice).
+Hue dimmer remotes can be used for a click and long press (hold button for 2 sec and see LED blink twice).
 
 Add to your config:
 
