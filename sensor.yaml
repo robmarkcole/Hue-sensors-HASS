@@ -1,4 +1,4 @@
-- platform: hue_sensors
+- platform: hue
 
 - platform: template
   sensors:
