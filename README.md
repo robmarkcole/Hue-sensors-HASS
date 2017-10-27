@@ -1,7 +1,7 @@
 # Hue-sensors-HASS
-Component (in development) for Hue sensors in Home-assistant.
+Component for Hue sensors in Home-assistant.
 
-Place the contents of components in your components directory (this is the hub component), and the contents of components/sensor in components/sensor (the sensors component). Setup assumes have the file phue.conf in your hass config dir.
+Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder). Please note you are adding a hub and the sensors in the config instructions below, both are required. Additionally setup assumes have the file phue.conf in your hass config dir, which is created by the hue lights component (different author). Hopefully the sensors and lights can be unified with some more work.
 
 Hue dimmer remotes can be used for a click and long press (hold button for 2 sec and see LED blink twice).
 
