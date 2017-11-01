@@ -14,4 +14,25 @@ sensor:
   - platform: hue
 ```
 
+To add the following group to your HA frontend, add the following to groups.yaml (obviously editing to use your sensors):
+
+```
+default_view:
+  view: yes
+  entities:
+    - group.Hue
+
+Hue:
+  entities:
+    - sensor.bedroom_motion_sensor
+    - sensor.hall_motion_sensor
+    - sensor.living_room_motion_sensor
+    - sensor.living_room_temperature
+    - sensor.living_room_light_level
+    - sensor.living_room_lux
+    - sensor.living_room_remote
+    - sensor.remote_bedroom
+    - sensor.robins_iphone
+```
+
 <img src="https://github.com/robmarkcole/Hue-sensors-HASS/blob/master/hue.png">
