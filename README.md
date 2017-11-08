@@ -35,4 +35,26 @@ Hue:
     - sensor.robins_iphone
 ```
 
+## Multiway sensors
+Multiway sensors is a traditional way to have several switches work in correspondence to control the same group of lights.
+It you want to use more than one Hue sensor obtain the same effect of controlling the _same_ light automations (say two switches at either end of your living room), it is hard to make automations and state work well trying to handle the two sensors individually.
+Therefore, a synthetic sensor type - the multiway sensor - is provided, that looks at several sensors and returns the latest seen state from the combined set of monitored sensors. One can then write automations that look at the state of the single multiway sensor instead of at the individual states of the participating sensors.
+
+To add a multiway sensor, extend your configuration as follows:
+
+```
+hue:
+
+sensor:
+  - platform: hue
+    multiwaysensors: 
+      - name: Multiway Sensor Name 1
+        sensorids: sensor.hue_sensor_1, sensor.hue_sensor_2
+      - name: Multiway Sensor Name 2
+        sensorids: sensor.hue_sensor_3, sensor.hue_sensor_4
+```
+where sensor.hue_sensor_1 etc. are the entity ids of the real sensors and Multiway Sensor Name 1 etc. are the friendly names of your multiway sensors.
+
+
+
 <img src="https://github.com/robmarkcole/Hue-sensors-HASS/blob/master/hue.png">

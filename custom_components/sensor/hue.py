@@ -6,17 +6,32 @@ https://home-assistant.io/components/sensor.hue_sensors/
 """
 import logging
 from datetime import timedelta
+from datetime import datetime
 
 import requests
 
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
+from homeassistant.const import STATE_UNKNOWN
+
+import voluptuous as vol
+from homeassistant.components.sensor import PLATFORM_SCHEMA
+import homeassistant.helpers.config_validation as cv
 
 DOMAIN = 'hue'
 _LOGGER = logging.getLogger(__name__)
 SCAN_INTERVAL = timedelta(seconds=1)
 
 REQUIREMENTS = ['hue-sensors==1.1']
+
+
+# Validation of the user's configuration of multiway sensors
+PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
+    vol.Optional('multiwaysensors'): [{
+        vol.Required('name'): cv.string,
+        vol.Required('sensorids'): cv.entity_ids
+    }]
+})
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
@@ -28,6 +43,16 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     sensors = []
     for key in data.data.keys():
         sensors.append(HueSensor(key, data))
+    _LOGGER.debug("Created regular devices, creating multiwaysensors")
+
+    """Set up the multiway sensors."""
+	# TODO: test for existence of multiway conf
+    multiwaysensorsconf = config['multiwaysensors']
+    for mwsensor in multiwaysensorsconf:
+        mwsensorname = mwsensor['name']
+        mwsensoridlist = mwsensor['sensorids']
+        sensors.append(HueMultiwaySensor(sensors, mwsensor['name'], mwsensor['sensorids']))
+    _LOGGER.debug("Created all devices, adding them to Home Assistant")
     add_devices(sensors, True)
 
 
@@ -50,6 +75,62 @@ class HueSensorData(object):
         else:
             self.data = self.parse_hue_api_response(response.json())
 
+class HueMultiwaySensor(Entity):
+    """Class to hold Hue Multiway Sensor basic info."""
+
+    ICON = 'mdi:run-fast'
+
+    def __init__(self, sensors, mwsensorname, mwsensoridlist):
+        """Initialize the sensor object."""
+        _LOGGER.debug("Init multiwaysensor")
+        self._sensors = sensors
+        self._sensoridlist = mwsensoridlist
+        self._icon = None
+        self._name = mwsensorname
+        self._state = STATE_UNKNOWN
+        self._attributes = {}
+        self._attributes['sensorids'] = mwsensoridlist
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return self._name
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self._state
+
+    @property
+    def icon(self):
+        """Icon to use in the frontend, if any."""
+        return self._icon
+
+    @property
+    def device_state_attributes(self):
+        """Attributes."""
+        return self._attributes
+
+    def update(self):
+        """Update the sensor."""
+        latestupdate = None
+        latestsensor = None
+        for sensor in self._sensors:
+            if sensor.entity_id in self._sensoridlist:
+                _LOGGER.debug("Checking sensor: " + sensor.name)
+                if 'last updated' in sensor.device_state_attributes.keys():
+                    lastupdatearray = sensor.device_state_attributes['last updated']
+                    strtime = lastupdatearray[0] + " " + lastupdatearray[1]
+                    lastupdated = datetime.strptime(strtime, '%Y-%m-%d %H:%M:%S')
+                    if (latestupdate is None) or ((latestupdate is not None and lastupdated > latestupdate)):
+                        _LOGGER.debug("Found new latest sensor " + sensor.name)
+                        latestupdate = lastupdated
+                        latestsensor = sensor
+        if latestsensor is not None:
+            self._state = latestsensor.state
+            self._attributes['last sensor'] = latestsensor.name
+            self._attributes['last updated'] = latestsensor.device_state_attributes['last updated']
+			
 
 class HueSensor(Entity):
     """Class to hold Hue Sensor basic info."""
@@ -118,3 +199,4 @@ class HueSensor(Entity):
                 self._hue_id]['last_updated']
         elif self._model == 'Geofence':
             self._icon = 'mdi:cellphone'
+
