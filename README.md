@@ -52,7 +52,7 @@ sensor:
       - name: Multiway Sensor Name 2
         sensorids: sensor.hue_sensor_3, sensor.hue_sensor_4
 ```
-where sensor.hue_sensor_1 etc. are the entity ids of the real sensors and Multiway Sensor Name 1 etc. are the friendly names of your multiway sensors.
+where sensor.hue_sensor_1 etc. are the entity ids of the real sensors and Multiway Sensor Name 1 etc. are the friendly names of your multiway sensors. Then write your automations referring the to multiway sensor in exactly the same way that you would write automations for the individual real sensors.
 
 
 
