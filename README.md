@@ -36,8 +36,7 @@ Hue:
 ```
 
 ## Multiway sensors
-Multiway sensors is a traditional way to have several switches work in correspondence to control the same group of lights.
-It you want to use more than one Hue sensor obtain the same effect of controlling the _same_ light automations (say two switches at either end of your living room), it is hard to make automations and state work well trying to handle the two sensors individually.
+Multiway switching is a traditional way to have several switches work in correspondence to control the same group of lights (see e.g. https://en.wikipedia.org/wiki/Multiway_switching). It you want to use more than one Hue sensor obtain the same effect of controlling the _same_ light automations (say two switches at either end of your living room), it is hard to make automations and state work well trying to handle the two sensors individually.
 Therefore, a synthetic sensor type - the multiway sensor - is provided, that looks at several sensors and returns the latest seen state from the combined set of monitored sensors. One can then write automations that look at the state of the single multiway sensor instead of at the individual states of the participating sensors.
 
 To add a multiway sensor, extend your configuration as follows:
