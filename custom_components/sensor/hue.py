@@ -46,12 +46,12 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     _LOGGER.debug("Created regular devices, creating multiwaysensors")
 
     """Set up the multiway sensors."""
-	# TODO: test for existence of multiway conf
-    multiwaysensorsconf = config['multiwaysensors']
-    for mwsensor in multiwaysensorsconf:
-        mwsensorname = mwsensor['name']
-        mwsensoridlist = mwsensor['sensorids']
-        sensors.append(HueMultiwaySensor(sensors, mwsensor['name'], mwsensor['sensorids']))
+    if 'multiwaysensors' in config.keys():    
+        multiwaysensorsconf = config['multiwaysensors']
+        for mwsensor in multiwaysensorsconf:
+            mwsensorname = mwsensor['name']
+            mwsensoridlist = mwsensor['sensorids']
+            sensors.append(HueMultiwaySensor(sensors, mwsensor['name'], mwsensor['sensorids']))
     _LOGGER.debug("Created all devices, adding them to Home Assistant")
     add_devices(sensors, True)
 
