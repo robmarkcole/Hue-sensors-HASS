@@ -96,7 +96,7 @@ class HueSensor(Entity):
                 self._hue_id]['light_level']
             self._attributes['battery'] = self._data.data[
                 self._hue_id]['battery']
-            self._attributes['last updated'] = self._data.data[
+            self._attributes['last_updated'] = self._data.data[
                 self._hue_id]['last_updated']
             self._attributes['lux'] = self._data.data[
                 self._hue_id]['lux']
@@ -108,13 +108,13 @@ class HueSensor(Entity):
                 self._hue_id]['temperature']
         elif self._model == 'RWL':
             self._icon = 'mdi:remote'
-            self._attributes['last updated'] = self._data.data[
+            self._attributes['last_updated'] = self._data.data[
                 self._hue_id]['last_updated']
             self._attributes['battery'] = self._data.data[
                 self._hue_id]['battery']
         elif self._model == 'ZGP':
             self._icon = 'mdi:remote'
-            self._attributes['last updated'] = self._data.data[
+            self._attributes['last_updated'] = self._data.data[
                 self._hue_id]['last_updated']
         elif self._model == 'Geofence':
             self._icon = 'mdi:cellphone'
