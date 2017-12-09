@@ -35,4 +35,15 @@ Hue:
     - sensor.robins_iphone
 ```
 
+Temperature, light level and other data in the sensor attributes can be broken out into their own sensor using a template sensor, for example:
+
+```
+- platform: template
+  sensors:
+    living_room_temperature:
+      friendly_name: 'Living room temperature'
+      value_template: '{{states.sensor.living_room_motion_sensor.attributes.temperature}}'
+      unit_of_measurement: °C
+```
+
 <img src="https://github.com/robmarkcole/Hue-sensors-HASS/blob/master/hue.png">
