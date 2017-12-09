@@ -16,7 +16,7 @@ DOMAIN = 'hue'
 _LOGGER = logging.getLogger(__name__)
 SCAN_INTERVAL = timedelta(seconds=1)
 
-REQUIREMENTS = ['hue-sensors==1.1']
+REQUIREMENTS = ['hue-sensors==1.2']
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
