@@ -12,7 +12,7 @@ from homeassistant.const import (CONF_FILENAME)
 _LOGGER = logging.getLogger(__name__)
 PHUE_CONFIG_FILE = 'phue.conf'
 
-DOMAIN = 'hue'
+DOMAIN = 'hue_sensor'
 
 
 def load_conf(filepath):
