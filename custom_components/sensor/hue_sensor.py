@@ -8,21 +8,36 @@ import logging
 from datetime import timedelta
 
 import requests
+import json
 
+from homeassistant.const import (CONF_FILENAME)
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
 
-DOMAIN = 'hue'
+DOMAIN = 'hue_sensor'
 _LOGGER = logging.getLogger(__name__)
 SCAN_INTERVAL = timedelta(seconds=1)
-
+PHUE_CONFIG_FILE = 'phue.conf'
 REQUIREMENTS = ['hue-sensors==1.2']
+
+
+def load_conf(filepath):
+    """Return the URL for API requests."""
+    with open(filepath, 'r') as file_path:
+        data = json.load(file_path)
+        ip_add = next(data.keys().__iter__())
+        username = data[ip_add]['username']
+        url = 'http://' + ip_add + '/api/' + username
+    return url
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
     """Set up the Hue sensors."""
     import hue_sensors as hs
-    url = hass.data[DOMAIN] + '/sensors'
+
+    filename = config.get(CONF_FILENAME, PHUE_CONFIG_FILE)
+    filepath = hass.config.path(filename)
+    url = load_conf(filepath) + '/sensors'
     data = HueSensorData(url, hs.parse_hue_api_response)
     data.update()
     sensors = []
