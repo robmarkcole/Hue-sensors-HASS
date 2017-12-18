@@ -25,7 +25,7 @@ To add `hue` sensors to your installation, first follow the instructions in the 
 ```yaml
 # Example configuration.yaml entry
 sensor:
-  - platform: hue
+  - platform: hue_sensor
 ```
 
 To create a separate sensor for the SML temperature or light level data use a [template sensor](https://home-assistant.io/components/sensor.template/). For example, to read the temperature of a sensor with entity_id `sensor.living_room_motion_sensor` and the following to configuration.yaml:
