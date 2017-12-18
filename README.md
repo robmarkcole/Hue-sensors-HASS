@@ -1,5 +1,5 @@
 # Hue-sensors-HASS
-Component for Hue sensors in Home-assistant v0.6 and above. 
+Component for Hue sensors in Home-assistant v0.60 and above. 
 
 Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder). Setup assumes you have the file phue.conf in your hass config dir, which is created by the hue lights component (different author). Note that in some cases phue.conf may be named differently, for example mine was something like phue-12412523.conf so I copied and pasted this file, then renamed to phue.conf.
 
