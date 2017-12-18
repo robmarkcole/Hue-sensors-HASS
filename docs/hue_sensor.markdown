@@ -19,5 +19,5 @@ To use this component, add the following to your configuration.yaml file:
 
 ```yaml
 # Example configuration.yaml entry
-hue:
+hue_sensor:
 ```
