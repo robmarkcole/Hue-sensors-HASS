@@ -12,7 +12,7 @@ import requests
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
 
-DOMAIN = 'hue'
+DOMAIN = 'hue_sensor'
 _LOGGER = logging.getLogger(__name__)
 SCAN_INTERVAL = timedelta(seconds=1)
 
