@@ -8,10 +8,10 @@ Hue dimmer remotes can be used for a click and long press (hold button for 2 sec
 Add to your config:
 
 ```
-hue:
+hue_sensor:
 
 sensor:
-  - platform: hue
+  - platform: hue_sensor
 ```
 
 To add the following group to your HA frontend, add the following to groups.yaml (obviously editing to use your sensors):
