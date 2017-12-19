@@ -15,7 +15,7 @@ sensor:
 ## Hassio
 Under hassio with 0.60 I also initially get the error `unable to find hue_sensors`, which I believe is due to [hue_sensors](https://github.com/robmarkcole/Hue-sensors) not being installed.
 
-Solution: download [hue_sensors.py](https://github.com/robmarkcole/Hue-sensors/blob/master/hue_sensors.py) and place in `custom_components/sensors`, restart hassio.
+Solution: download [hue_sensors.py](https://github.com/robmarkcole/Hue-sensors/blob/master/hue_sensors.py) and place in `custom_components/sensors` alongside hue_sensor.py from this repo and restart hassio.
 
 ## Front end display
 
