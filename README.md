@@ -1,5 +1,5 @@
 # Hue-sensors-HASS
-Component for Hue sensors in Home-assistant v0.60 and above. 
+Component for Hue sensors in Home-assistant v0.60 and above.
 
 Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder). Setup assumes you have the file phue.conf in your hass config dir, which is created by the hue lights component (different author). Note that in some cases phue.conf may be named differently, for example mine was something like phue-12412523.conf so I copied and pasted this file, then renamed to phue.conf.
 
@@ -11,6 +11,13 @@ Add to your config:
 sensor:
   - platform: hue_sensor
 ```
+
+## Hassio
+Under hassio with 0.60 I also initially get the error `unable to find hue_sensors`, which I believe is due to [hue_sensors](https://github.com/robmarkcole/Hue-sensors) not being installed.
+
+Solution: download [hue_sensors.py](https://github.com/robmarkcole/Hue-sensors/blob/master/hue_sensors.py) and place in `custom_components/sensors`, restart hassio.
+
+## Front end display
 
 To add the following group to your HA frontend, add the following to groups.yaml (obviously editing to use your sensors):
 
