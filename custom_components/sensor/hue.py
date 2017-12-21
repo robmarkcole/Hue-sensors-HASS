@@ -22,8 +22,8 @@ REQUIREMENTS = ['hue-sensors-phue==1.0']
 def setup_platform(hass, config, add_devices, discovery_info=None):
     """Set up the Hue sensors."""
     import hue_sensors_phue as hs
-#    if discovery_info is None or 'bridge_id' not in discovery_info:
-#        return
+    if discovery_info is None or 'bridge_id' not in discovery_info:
+        return
 
     ## Whats going on here?
     bridge_id = discovery_info['bridge_id']
@@ -51,7 +51,7 @@ class HueSensorData(object):
     @Throttle(SCAN_INTERVAL)
     def update(self):
         """Get the latest data."""
-        response = self.bridge.get_sensor_objects('name')
+        response = self.bridge.bridge.get_sensor_objects('name')
         self.data = self.parse_hue_api_response(response)
 
 
