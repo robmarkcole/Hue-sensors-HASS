@@ -1,7 +1,7 @@
 # Hue-sensors-HASS
-Component for Hue sensors in Home-assistant v0.60 and above.
+Component for Hue sensors in Home-assistant v0.60 and above. To use the dev-phue branch you need to edit components/hue.py as the instructions in the folder in this repo. 
 
-Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder). 
+Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder).
 
 Hue dimmer remotes can be used for a click and long press (hold button for 2 sec and see LED blink twice).
 
