@@ -1,7 +1,7 @@
 # Hue-sensors-HASS
 Component for Hue sensors in Home-assistant v0.60 and above.
 
-**To use the dev-phue branch you need to edit components/hue.py as [the instructions](https://github.com/robmarkcole/Hue-sensors-HASS/blob/dev-phue/edited_hue_hub/changes_to_components_hue.md) in the folder in this repo.** 
+**To use the dev-phue branch you need to use the edited version of components/hue.py in the custom_components folder. The edits are listed at the bottom of this readme.**
 
 Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder).
 
@@ -49,3 +49,23 @@ Temperature, light level and other data in the sensor attributes can be broken o
 ```
 
 <img src="https://github.com/robmarkcole/Hue-sensors-HASS/blob/master/hue.png">
+
+## Changes to components/hue
+
+Changes to components/hue.py
+
+On line 192
+```
+discovery.load_platform(
+            self.hass, 'light', DOMAIN,
+            {'bridge_id': socket.gethostbyname(self.host)})
+```
+
+Becomes
+```
+PLATFORMS = ['light', 'sensor']
+
+for platform in PLATFORMS:
+     discovery.load_platform(
+        self.hass, platform, DOMAIN,
+        {'bridge_id': socket.gethostbyname(self.host)})
