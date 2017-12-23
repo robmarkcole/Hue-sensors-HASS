@@ -1,5 +1,7 @@
 # Hue-sensors-HASS
-Component for Hue sensors in Home-assistant v0.60 and above. To use the dev-phue branch you need to edit components/hue.py as the instructions in the folder in this repo. 
+Component for Hue sensors in Home-assistant v0.60 and above.
+
+**To use the dev-phue branch you need to edit components/hue.py as [the instructions](https://github.com/robmarkcole/Hue-sensors-HASS/blob/dev-phue/edited_hue_hub/changes_to_components_hue.md) in the folder in this repo.** 
 
 Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder).
 
