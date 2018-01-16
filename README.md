@@ -1,7 +1,7 @@
 # Hue-sensors-HASS
 Component for Hue sensors in Home-assistant v0.62 and above.
 
-**To use the dev-phue branch you need to use the edited version of components/hue.py in the custom_components folder. The edits are listed at the bottom of this readme.**
+**Note that a modified version of the hue hub component (components/hue.py) is used with the edits are listed at the bottom of this readme. The hub component has changed several times between 0.60 and 0.62 and hence there have been a few issues with this custom component. Hopefully the hub component is settled in 0.62.**
 
 Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder).
 
@@ -54,7 +54,7 @@ Temperature, light level and other data in the sensor attributes can be broken o
 
 <img src="https://github.com/robmarkcole/Hue-sensors-HASS/blob/master/hue.png">
 
-## Changes to components/hue
+## Changes to the official hue hub component
 
 Changes to components/hue.py - just adds sensors domain in setup().
 
