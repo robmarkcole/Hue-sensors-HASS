@@ -2,43 +2,33 @@
 Sensor for checking the status of Hue sensors.
 
 For more details about this platform, please refer to the documentation at
-https://home-assistant.io/components/sensor.hue_sensors/
+https://home-assistant.io/components/sensor.hue/
 """
 import logging
 from datetime import timedelta
 
-import requests
-import json
+import homeassistant.components.hue as hue
 
-from homeassistant.const import (CONF_FILENAME)
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
 
-DOMAIN = 'hue_sensor'
+DEPENDENCIES = ['hue']
+
 _LOGGER = logging.getLogger(__name__)
-SCAN_INTERVAL = timedelta(seconds=1)
-PHUE_CONFIG_FILE = 'phue.conf'
+SCAN_INTERVAL = timedelta(seconds=0.1)
 REQUIREMENTS = ['hue-sensors==1.2']
-
-
-def load_conf(filepath):
-    """Return the URL for API requests."""
-    with open(filepath, 'r') as file_path:
-        data = json.load(file_path)
-        ip_add = next(data.keys().__iter__())
-        username = data[ip_add]['username']
-        url = 'http://' + ip_add + '/api/' + username
-    return url
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
     """Set up the Hue sensors."""
     import hue_sensors as hs
+    if discovery_info is None or 'bridge_id' not in discovery_info:
+        return
 
-    filename = config.get(CONF_FILENAME, PHUE_CONFIG_FILE)
-    filepath = hass.config.path(filename)
-    url = load_conf(filepath) + '/sensors'
-    data = HueSensorData(url, hs.parse_hue_api_response)
+    bridge_id = discovery_info['bridge_id']
+    bridge = hass.data[hue.DOMAIN][bridge_id]
+
+    data = HueSensorData(bridge, hs.parse_hue_api_response)
     data.update()
     sensors = []
     for key in data.data.keys():
@@ -49,9 +39,9 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 class HueSensorData(object):
     """Get the latest sensor data."""
 
-    def __init__(self, url, parse_hue_api_response):
+    def __init__(self, bridge, parse_hue_api_response):
         """Initialize the data object."""
-        self.url = url
+        self.bridge = bridge
         self.data = None
         self.parse_hue_api_response = parse_hue_api_response
 
@@ -59,11 +49,8 @@ class HueSensorData(object):
     @Throttle(SCAN_INTERVAL)
     def update(self):
         """Get the latest data."""
-        response = requests.get(self.url)
-        if response.status_code != 200:
-            _LOGGER.warning("Invalid response from API")
-        else:
-            self.data = self.parse_hue_api_response(response.json())
+        response = self.bridge.bridge.get_sensor()
+        self.data = self.parse_hue_api_response(response)
 
 
 class HueSensor(Entity):

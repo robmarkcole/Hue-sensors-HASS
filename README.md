@@ -1,21 +1,22 @@
 # Hue-sensors-HASS
-Component for Hue sensors in Home-assistant v0.60 and above.
+Component for Hue sensors in Home-assistant v0.62 and above.
 
-Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder). Setup assumes you have the file phue.conf in your hass config dir, which is created by the hue lights component (different author). Note that in some cases phue.conf may be named differently, for example mine was something like phue-12412523.conf so I copied and pasted this file, then renamed to phue.conf.
+**To use the dev-phue branch you need to use the edited version of components/hue.py in the custom_components folder. The edits are listed at the bottom of this readme.**
+
+Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder).
 
 Hue dimmer remotes can be used for a click and long press (hold button for 2 sec and see LED blink twice).
 
 Add to your config:
 
 ```
+hue:
+  bridges:
+    - host: 192.168.0.100
+
 sensor:
-  - platform: hue_sensor
+  - platform: hue
 ```
-
-## Hassio
-Under hassio with 0.60 I also initially get the error `unable to find hue_sensors`, which I believe is due to [hue_sensors](https://github.com/robmarkcole/Hue-sensors) not being installed.
-
-Solution: download [hue_sensors.py](https://github.com/robmarkcole/Hue-sensors/blob/master/hue_sensors.py) and place in `custom_components/sensors` alongside hue_sensor.py from this repo and restart hassio.
 
 ## Front end display
 
@@ -52,3 +53,23 @@ Temperature, light level and other data in the sensor attributes can be broken o
 ```
 
 <img src="https://github.com/robmarkcole/Hue-sensors-HASS/blob/master/hue.png">
+
+## Changes to components/hue
+
+Changes to components/hue.py - just adds sensors domain in setup().
+
+```
+discovery.load_platform(
+            self.hass, 'light', DOMAIN,
+            {'bridge_id': self.bridge_id})
+```
+
+Becomes
+```
+PLATFORMS = ['light', 'sensor']
+
+for platform in PLATFORMS:
+     discovery.load_platform(
+        self.hass, platform, DOMAIN,
+        {'bridge_id': self.bridge_id})
+```
