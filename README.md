@@ -1,5 +1,5 @@
 # Hue-sensors-HASS
-Component for Hue sensors in Home-assistant v0.60 and above.
+Component for Hue sensors in Home-assistant v0.62 and above.
 
 **To use the dev-phue branch you need to use the edited version of components/hue.py in the custom_components folder. The edits are listed at the bottom of this readme.**
 
@@ -10,6 +10,10 @@ Hue dimmer remotes can be used for a click and long press (hold button for 2 sec
 Add to your config:
 
 ```
+hue:
+  bridges:
+    - host: 192.168.0.100
+
 sensor:
   - platform: hue
 ```
@@ -52,13 +56,12 @@ Temperature, light level and other data in the sensor attributes can be broken o
 
 ## Changes to components/hue
 
-Changes to components/hue.py
+Changes to components/hue.py - just adds sensors domain in setup().
 
-On line 192
 ```
 discovery.load_platform(
             self.hass, 'light', DOMAIN,
-            {'bridge_id': socket.gethostbyname(self.host)})
+            {'bridge_id': self.bridge_id})
 ```
 
 Becomes
@@ -68,4 +71,5 @@ PLATFORMS = ['light', 'sensor']
 for platform in PLATFORMS:
      discovery.load_platform(
         self.hass, platform, DOMAIN,
-        {'bridge_id': socket.gethostbyname(self.host)})
+        {'bridge_id': self.bridge_id})
+```
