@@ -159,7 +159,7 @@ class HueSensorData(object):
     @Throttle(SCAN_INTERVAL)
     def update(self):
         """Get the latest data."""
-        response = self.bridge.bridge.get_sensor()
+        response = self.bridge.get_sensor()
         self.data = self.parse_hue_api_response(response)
 
 

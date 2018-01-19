@@ -236,6 +236,10 @@ class HueBridge(object):
         """Return the full api dictionary from phue."""
         return self.bridge.get_api()
 
+    def get_sensor(self):
+        """Get sensor state."""
+        return self.bridge.get_sensor()
+
     def set_light(self, light_id, command):
         """Adjust properties of one or more lights. See phue for details."""
         return self.bridge.set_light(light_id, command)
