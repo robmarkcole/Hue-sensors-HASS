@@ -56,7 +56,7 @@ Temperature, light level and other data in the sensor attributes can be broken o
 
 ## Changes to the official hue hub component
 
-Changes to components/hue.py - just adds sensors domain in setup().
+Changes to components/hue.py - adds sensors domain in setup() and adds get_sensor() method.
 
 ```
 discovery.load_platform(
@@ -72,4 +72,9 @@ for platform in PLATFORMS:
      discovery.load_platform(
         self.hass, platform, DOMAIN,
         {'bridge_id': self.bridge_id})
+
+# adds
+def get_sensor(self):
+    """Get sensor state."""
+    return self.bridge.get_sensor()
 ```
