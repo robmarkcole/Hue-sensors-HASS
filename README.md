@@ -78,3 +78,13 @@ def get_sensor(self):
     """Get sensor state."""
     return self.bridge.get_sensor()
 ```
+
+## Debugging
+
+If you get an error when using this component, the procedure for debugging is as follows.
+
+1. Open an issue here on Github. Include the error message, release number of the custom component.
+2. Download the Hue API response following the instructions [here](https://www.hackster.io/robin-cole/hijack-a-hue-remote-to-control-anything-with-home-assistant-5239a4#toc-hue-api-1). Save into a .json file.
+3. Parse the json file using the [hue_sensors package](https://pypi.python.org/pypi/hue-sensors/1.2) and report the device ID (e.g. RWL_06-02) that is causing your issue.
+
+There are a couple of examples of this process in the debugging_issues folder.
