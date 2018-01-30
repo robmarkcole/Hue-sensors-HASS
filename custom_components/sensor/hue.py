@@ -27,7 +27,7 @@ def parse_hue_api_response(response):
         sensor = response[key]
         modelid = sensor['modelid'][0:3]
         if modelid in ['RWL', 'SML', 'ZGP']:
-            _key = modelid + '_' + sensor['uniqueid'].split(':')[-1][0:5]
+            _key = modelid + '_' + sensor['uniqueid'][:-5]
 
             if modelid == 'RWL':
                 data_dict[_key] = parse_rwl(sensor)
