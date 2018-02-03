@@ -1,13 +1,13 @@
 # Hue-sensors-HASS
-Component for Hue sensors in Home-assistant v0.62 and above.
+Component for Hue sensors in Home-assistant.
 
-**Note that a modified version of the hue hub component (components/hue.py) is used with the edits are listed at the bottom of this readme. The hub component has changed several times between 0.60 and 0.62 and hence there have been a few issues with this custom component. Hopefully the hub component is settled in 0.62.**
+**Note that a modified version of the hue hub component (components/hue.py) is used with the edits are listed at the bottom of this readme.**
 
 Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder).
 
 Hue dimmer remotes can be used for a click and long press (hold button for 2 sec and see LED blink twice).
 
-Add to your config:
+It is not necessary to add any entries to your HA config file as [discovery](https://home-assistant.io/developers/component_discovery/) will detect any available sensors. However if you have disabled discovery you would need to add to your config:
 
 ```
 hue:
@@ -46,10 +46,16 @@ Temperature, light level and other data in the sensor attributes can be broken o
 ```
 - platform: template
   sensors:
+  
     living_room_temperature:
       friendly_name: 'Living room temperature'
       value_template: '{{states.sensor.living_room_motion_sensor.attributes.temperature}}'
       unit_of_measurement: °C
+
+    living_room_light_level:
+      friendly_name: 'Living room light level'
+      value_template: '{{states.sensor.living_room_motion_sensor.attributes.lux}}'
+      unit_of_measurement: lux
 ```
 
 <img src="https://github.com/robmarkcole/Hue-sensors-HASS/blob/master/hue.png">
