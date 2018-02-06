@@ -80,6 +80,8 @@ def parse_sml(response):
                 'name': name,
                 'state': state,
                 'battery': response['config']['battery'],
+                'on': response['config']['on'],
+                'reachable': response['config']['reachable'],
                 'last_updated': response['state']['lastupdated'].split('T')}
     return data
 
@@ -113,6 +115,8 @@ def parse_rwl(response):
             'name': response['name'],
             'state': button,
             'battery': response['config']['battery'],
+            'on': response['config']['on'],
+            'reachable': response['config']['reachable'],
             'last_updated': response['state']['lastupdated'].split('T')}
     return data
 
@@ -218,12 +222,20 @@ class HueSensor(Entity):
                 self._hue_id]['daylight']
             self._attributes['temperature'] = self._data.data[
                 self._hue_id]['temperature']
+            self._attributes['on'] = self._data.data[
+                self._hue_id]['on']
+            self._attributes['reachable'] = self._data.data[
+                self._hue_id]['reachable']
         elif self._model == 'RWL':
             self._icon = 'mdi:remote'
             self._attributes['last_updated'] = self._data.data[
                 self._hue_id]['last_updated']
             self._attributes['battery'] = self._data.data[
                 self._hue_id]['battery']
+            self._attributes['on'] = self._data.data[
+                self._hue_id]['on']
+            self._attributes['reachable'] = self._data.data[
+                self._hue_id]['reachable']
         elif self._model == 'ZGP':
             self._icon = 'mdi:remote'
             self._attributes['last_updated'] = self._data.data[
