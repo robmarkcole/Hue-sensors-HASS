@@ -46,7 +46,7 @@ Temperature, light level and other data in the sensor attributes can be broken o
 ```
 - platform: template
   sensors:
-  
+
     living_room_temperature:
       friendly_name: 'Living room temperature'
       value_template: '{{states.sensor.living_room_motion_sensor.attributes.temperature}}'
@@ -58,7 +58,9 @@ Temperature, light level and other data in the sensor attributes can be broken o
       unit_of_measurement: lux
 ```
 
-<img src="https://github.com/robmarkcole/Hue-sensors-HASS/blob/master/hue.png">
+<p align="center">
+<img src="https://github.com/robmarkcole/Hue-sensors-HASS/blob/master/hue.png" width="300">
+</p>
 
 ## Changes to the official hue hub component
 
