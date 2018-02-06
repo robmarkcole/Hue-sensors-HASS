@@ -59,7 +59,7 @@ Temperature, light level and other data in the sensor attributes can be broken o
 ```
 
 <p align="center">
-<img src="https://github.com/robmarkcole/Hue-sensors-HASS/blob/master/hue.png" width="300">
+<img src="https://github.com/robmarkcole/Hue-sensors-HASS/blob/master/hue.png" width="500">
 </p>
 
 ## Changes to the official hue hub component
