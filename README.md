@@ -18,6 +18,8 @@ sensor:
   - platform: hue
 ```
 
+As per [this issue](https://github.com/robmarkcole/Hue-sensors-HASS/issues/48) it is recommended to use the default naming options in the Hue app in order to ensure sensible sensor names in HA.
+
 ## Front end display
 
 To add the following group to your HA frontend, add the following to groups.yaml (obviously editing to use your sensors):
