@@ -1,19 +1,11 @@
 # Hue-sensors-HASS
-Component for Hue sensors in Home-assistant.
+Component for Hue sensors in Home-Assistant, **updated for 0.66 to be independent of the Hue hub platform**.
 
-**Note that a modified version of the hue hub component (components/hue.py) is used with the edits are listed at the bottom of this readme.**
-
-Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder).
+Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder). In the added `hue.py` uou need to manually edit `URL` to use your Hue bridge IP and developer key (note that this url is in your old `phue.conf` file).
 
 Hue dimmer remotes can be used for a click and long press (hold button for 2 sec and see LED blink twice).
 
-It is not necessary to add any entries to your HA config file as [discovery](https://home-assistant.io/developers/component_discovery/) will detect any available sensors. However if you have disabled discovery you would need to add to your config:
-
 ```
-hue:
-  bridges:
-    - host: 192.168.0.100
-
 sensor:
   - platform: hue
 ```
@@ -63,31 +55,6 @@ Temperature, light level and other data in the sensor attributes can be broken o
 <p align="center">
 <img src="https://github.com/robmarkcole/Hue-sensors-HASS/blob/master/hue.png" width="500">
 </p>
-
-## Changes to the official hue hub component
-
-Changes to components/hue.py - adds sensors domain in setup() and adds get_sensor() method.
-
-```
-discovery.load_platform(
-            self.hass, 'light', DOMAIN,
-            {'bridge_id': self.bridge_id})
-```
-
-Becomes
-```
-PLATFORMS = ['light', 'sensor']
-
-for platform in PLATFORMS:
-     discovery.load_platform(
-        self.hass, platform, DOMAIN,
-        {'bridge_id': self.bridge_id})
-
-# adds
-def get_sensor(self):
-    """Get sensor state."""
-    return self.bridge.get_sensor()
-```
 
 ## Debugging
 
