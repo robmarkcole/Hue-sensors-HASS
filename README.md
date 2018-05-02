@@ -8,6 +8,8 @@ Hue dimmer remotes can be used for a click and long press (hold button for 2 sec
 ```
 sensor:
   - platform: hue
+    ip_address: 192.168.1.1
+    token: QKNg2pcBVOalc4ecJX4iVhLSQ2g08ghafs086XpG
 ```
 
 As per [this issue](https://github.com/robmarkcole/Hue-sensors-HASS/issues/48) it is recommended to use the default naming options in the Hue app in order to ensure sensible sensor names in HA.
