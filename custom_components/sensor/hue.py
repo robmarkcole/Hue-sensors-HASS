@@ -6,14 +6,24 @@ https://home-assistant.io/components/sensor.hue/
 """
 import logging
 from datetime import timedelta
-import requests
 
+import requests
+import voluptuous as vol
+
+import homeassistant.helpers.config_validation as cv
+from homeassistant.components.sensor import PLATFORM_SCHEMA
+from homeassistant.const import (CONF_IP_ADDRESS, CONF_TOKEN)
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
 
 _LOGGER = logging.getLogger(__name__)
+
 SCAN_INTERVAL = timedelta(seconds=0.1)
-URL = "http://192.168.0.0/api/YOUR_KEY/sensors"
+
+PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
+    vol.Required(CONF_IP_ADDRESS): cv.string,
+    vol.Required(CONF_TOKEN): cv.string,
+})
 
 
 def parse_hue_api_response(response):
@@ -135,7 +145,7 @@ def parse_geofence(response):
 def setup_platform(hass, config, add_devices, discovery_info=None):
     """Set up the Hue sensors."""
 
-    data = HueSensorData(parse_hue_api_response)
+    data = HueSensorData(parse_hue_api_response, config)
     data.update()
     sensors = []
     for key in data.data.keys():
@@ -146,9 +156,9 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 class HueSensorData(object):
     """Get the latest sensor data."""
 
-    def __init__(self, parse_hue_api_response):
+    def __init__(self, parse_hue_api_response, config):
         """Initialize the data object."""
-        self.url = URL
+        self.config = config
         self.data = None
         self.parse_hue_api_response = parse_hue_api_response
 
@@ -156,11 +166,17 @@ class HueSensorData(object):
     @Throttle(SCAN_INTERVAL)
     def update(self):
         """Get the latest data."""
-        response = requests.get(self.url)
+        response = requests.get(self._build_url())
         if response.status_code != 200:
             _LOGGER.warning("Invalid response from API")
         else:
             self.data = self.parse_hue_api_response(response.json())
+
+    def _build_url(self):
+        ip_address = self.config.get(CONF_IP_ADDRESS)
+        token = self.config.get(CONF_TOKEN)
+
+        return "http://" + ip_address + "/api/" + token + "/sensors"
 
 
 class HueSensor(Entity):
