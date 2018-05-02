@@ -1,7 +1,7 @@
 # Hue-sensors-HASS
 Component for Hue sensors in Home-Assistant, **updated for 0.66 to be independent of the Hue hub platform**.
 
-Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder). In the added `hue.py` you need to manually edit `URL` to use your Hue bridge IP and developer key, see [this link](https://www.hackster.io/robin-cole/hijack-a-hue-remote-to-control-anything-with-home-assistant-5239a4) for instructions.
+Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder). You need to configure your Hue bridge IP and developer key, see [this link](https://www.hackster.io/robin-cole/hijack-a-hue-remote-to-control-anything-with-home-assistant-5239a4) for instructions.
 
 Hue dimmer remotes can be used for a click and long press (hold button for 2 sec and see LED blink twice).
 
