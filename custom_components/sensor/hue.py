@@ -158,7 +158,7 @@ class HueSensorData(object):
 
     def __init__(self, parse_hue_api_response, config):
         """Initialize the data object."""
-        self.config = config
+        self.url = self._build_url(config)
         self.data = None
         self.parse_hue_api_response = parse_hue_api_response
 
@@ -166,15 +166,15 @@ class HueSensorData(object):
     @Throttle(SCAN_INTERVAL)
     def update(self):
         """Get the latest data."""
-        response = requests.get(self._build_url())
+        response = requests.get(self.url)
         if response.status_code != 200:
             _LOGGER.warning("Invalid response from API")
         else:
             self.data = self.parse_hue_api_response(response.json())
 
-    def _build_url(self):
-        ip_address = self.config.get(CONF_IP_ADDRESS)
-        token = self.config.get(CONF_TOKEN)
+    def _build_url(self, config):
+        ip_address = config.get(CONF_IP_ADDRESS)
+        token = config.get(CONF_TOKEN)
 
         return "http://" + ip_address + "/api/" + token + "/sensors"
 
