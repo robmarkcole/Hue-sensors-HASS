@@ -144,13 +144,15 @@ def parse_geofence(response):
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
     """Set up the Hue sensors."""
-
-    data = HueSensorData(parse_hue_api_response, config)
-    data.update()
-    sensors = []
-    for key in data.data.keys():
-        sensors.append(HueSensor(key, data))
-    add_devices(sensors, True)
+    try:
+        data = HueSensorData(parse_hue_api_response, config)
+        data.update()
+        sensors = []
+        for key in data.data.keys():
+            sensors.append(HueSensor(key, data))
+        add_devices(sensors, True)
+    except:
+        _LOGGER.warning("Cannot setup Hue sensors, check your config")
 
 
 class HueSensorData(object):
