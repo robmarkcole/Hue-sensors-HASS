@@ -57,11 +57,11 @@ def parse_sml(response):
     if response['type'] == "ZLLLightLevel":
         lightlevel = response['state']['lightlevel']
         if lightlevel is not None:
-            lux = round(float(10**((lightlevel-1)/10000)), 2)
+            lx = round(float(10**((lightlevel-1)/10000)), 2)
             dark = response['state']['dark']
             daylight = response['state']['daylight']
             data = {'light_level': lightlevel,
-                    'lux': lux,
+                    'lx': lx,
                     'dark': dark,
                     'daylight': daylight, }
         else:
@@ -228,8 +228,8 @@ class HueSensor(Entity):
                 self._hue_id]['battery']
             self._attributes['last_updated'] = self._data.data[
                 self._hue_id]['last_updated']
-            self._attributes['lux'] = self._data.data[
-                self._hue_id]['lux']
+            self._attributes['lx'] = self._data.data[
+                self._hue_id]['lx']
             self._attributes['dark'] = self._data.data[
                 self._hue_id]['dark']
             self._attributes['daylight'] = self._data.data[
