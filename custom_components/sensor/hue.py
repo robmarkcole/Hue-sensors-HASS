@@ -112,12 +112,21 @@ def parse_zgp(response):
 
 def parse_rwl(response):
     """Parse the json response for a RWL Hue remote."""
+
+    """
+        I know it should be _released not _up
+        but _hold_up is too good to miss isn't it
+    """
+    responsecodes = {
+        '0' : "_click",
+        '1' : "_hold",
+        '2' : "_click_up",
+        '3' : "_hold_up"
+    }
+
     press = str(response['state']['buttonevent'])
 
-    if press[-1] in ['0', '2']:
-        button = str(press)[0] + '_click'
-    else:
-        button = str(press)[0] + '_hold'
+    button = str(press)[0] + responsecodes[press[-1]]
 
     data = {'model': 'RWL',
             'name': response['name'],
