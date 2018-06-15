@@ -124,9 +124,11 @@ def parse_rwl(response):
         '3' : "_hold_up"
     }
 
-    press = str(response['state']['buttonevent'])
 
-    button = str(press)[0] + responsecodes[press[-1]]
+    button = ""
+    if response['state']['buttonevent']:
+        press = str(response['state']['buttonevent'])
+        button = str(press)[0] + responsecodes[press[-1]]
 
     data = {'model': 'RWL',
             'name': response['name'],
