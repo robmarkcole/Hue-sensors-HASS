@@ -50,7 +50,7 @@ Temperature, light level and other data in the sensor attributes can be broken o
 
     living_room_light_level:
       friendly_name: 'Living room light level'
-      value_template: '{{states.sensor.living_room_motion_sensor.attributes.lux}}'
+      value_template: '{{states.sensor.living_room_motion_sensor.attributes.lx}}'
       unit_of_measurement: lux
 ```
 
