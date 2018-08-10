@@ -8,4 +8,4 @@ install:
     - pip install -r requirements_test.txt
 # command to run tests
 script:
-    - py.test --cov=hue
+    - py.test tests/test_hue.py --cov=hue --cov-report term-missing

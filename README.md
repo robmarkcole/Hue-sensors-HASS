@@ -1,4 +1,5 @@
 [![build status](http://img.shields.io/travis/robmarkcole/Hue-sensors-HASS/master.svg?style=flat)](https://travis-ci.org/robmarkcole/Hue-sensors-HASS)
+[![Coverage Status](https://coveralls.io/repos/github/robmarkcole/Hue-sensors-HASS/badge.svg?branch=master)](https://coveralls.io/github/robmarkcole/Hue-sensors-HASS?branch=master)
 
 # Hue-sensors-HASS
 Component for Hue sensors in Home-Assistant, **updated for 0.66 to be independent of the Hue hub platform**.
