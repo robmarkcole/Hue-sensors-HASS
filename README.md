@@ -1,3 +1,5 @@
+[![build status](http://img.shields.io/travis/robmarkcole/Hue-sensors-HASS/master.svg?style=flat)](https://travis-ci.org/robmarkcole/Hue-sensors-HASS)
+
 # Hue-sensors-HASS
 Component for Hue sensors in Home-Assistant, **updated for 0.66 to be independent of the Hue hub platform**.
 
@@ -67,7 +69,3 @@ If you get an error when using this component, the procedure for debugging is as
 3. Parse the json file using the [hue_sensors package](https://pypi.python.org/pypi/hue-sensors/1.2) and report the device ID (e.g. RWL_06-02) that is causing your issue.
 
 There are a couple of examples of this process in the debugging_issues folder.
-
-[![build status](
-  http://img.shields.io/travis/robmarkcole/Hue-sensors-HASS/master.svg?style=flat)](
- https://travis-ci.org/robmarkcole/Hue-sensors-HASS)
