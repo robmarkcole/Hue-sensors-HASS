@@ -8,4 +8,4 @@ install:
     - pip install -r requirements_test.txt
 # command to run tests
 script:
-    - py.test
+    - py.test --cov=hue
