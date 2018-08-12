@@ -1,0 +1,10 @@
+{
+    "sensor.hue": {
+      "updated_at": "2018-08-10",
+      "version": "0.7",
+      "local_location": "/custom_components/sensor/hue.py",
+      "remote_location": "https://raw.githubusercontent.com/robmarkcole/Hue-sensors-HASS/master/custom_components/sensor/hue.py",
+      "visit_repo": "https://github.com/robmarkcole/Hue-sensors-HASS",
+      "changelog": "https://github.com/robmarkcole/Hue-sensors-HASS/releases/latest"
+    }
+}
