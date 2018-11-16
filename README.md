@@ -2,6 +2,8 @@
 [![Coverage Status](https://coveralls.io/repos/github/robmarkcole/Hue-sensors-HASS/badge.svg?branch=master)](https://coveralls.io/github/robmarkcole/Hue-sensors-HASS?branch=master)
 
 # Hue-sensors-HASS
+[FOR COMMUNITY SUPPORT PLEASE USE THIS THREAD](https://community.home-assistant.io/t/hue-motion-sensors-remotes-custom-component)
+
 Component for Hue sensors in Home-Assistant, **updated for 0.66 to be independent of the Hue hub platform**.
 
 Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder). You need to configure your Hue bridge IP and developer key, see [this link](https://www.hackster.io/robin-cole/hijack-a-hue-remote-to-control-anything-with-home-assistant-5239a4) for instructions.
