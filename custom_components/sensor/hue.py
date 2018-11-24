@@ -33,8 +33,7 @@ def parse_hue_api_response(response):
     data_dict = {}    # The list of sensors, referenced by their hue_id.
 
     # Loop over all keys (1,2 etc) to identify sensors and get data.
-    for key in response.keys():
-        sensor = response[key]
+    for sensor in response.values():
         modelid = sensor['modelid'][0:3]
         if modelid in ['RWL', 'SML', 'ZGP']:
             _key = modelid + '_' + sensor['uniqueid'][:-5]
@@ -44,7 +43,7 @@ def parse_hue_api_response(response):
             elif modelid == 'ZGP':
                 data_dict[_key] = parse_zgp(sensor)
             elif modelid == 'SML':
-                if _key not in data_dict.keys():
+                if _key not in data_dict:
                     data_dict[_key] = parse_sml(sensor)
                 else:
                     data_dict[_key].update(parse_sml(sensor))
@@ -67,7 +66,10 @@ def parse_sml(response):
                     'dark': dark,
                     'daylight': daylight, }
         else:
-            data = {'light_level': 'No light level data'}
+            data = {'light_level': 'No light level data',
+                    'lx': None,
+                    'dark': None,
+                    'daylight': None, }
 
     elif response['type'] == "ZLLTemperature":
         if response['state']['temperature'] is not None:
@@ -271,4 +273,4 @@ class HueSensor(Entity):
             elif self._model == 'Geofence':
                 self._icon = 'mdi:cellphone'
         except:
-            _LOGGER.error("Error updating Hue sensors")
+            _LOGGER.exception("Error updating Hue sensors")
