@@ -67,7 +67,10 @@ def parse_sml(response):
                     'dark': dark,
                     'daylight': daylight, }
         else:
-            data = {'light_level': 'No light level data'}
+            data = {'light_level': 'No light level data',
+                    'lx': None,
+                    'dark': None,
+                    'daylight': None, }
 
     elif response['type'] == "ZLLTemperature":
         if response['state']['temperature'] is not None:
@@ -271,4 +274,4 @@ class HueSensor(Entity):
             elif self._model == 'Geofence':
                 self._icon = 'mdi:cellphone'
         except:
-            _LOGGER.error("Error updating Hue sensors")
+            _LOGGER.exception("Error updating Hue sensors")
