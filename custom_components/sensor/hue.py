@@ -33,8 +33,7 @@ def parse_hue_api_response(response):
     data_dict = {}    # The list of sensors, referenced by their hue_id.
 
     # Loop over all keys (1,2 etc) to identify sensors and get data.
-    for key in response.keys():
-        sensor = response[key]
+    for sensor in response.values():
         modelid = sensor['modelid'][0:3]
         if modelid in ['RWL', 'SML', 'ZGP']:
             _key = modelid + '_' + sensor['uniqueid'][:-5]
@@ -44,7 +43,7 @@ def parse_hue_api_response(response):
             elif modelid == 'ZGP':
                 data_dict[_key] = parse_zgp(sensor)
             elif modelid == 'SML':
-                if _key not in data_dict.keys():
+                if _key not in data_dict:
                     data_dict[_key] = parse_sml(sensor)
                 else:
                     data_dict[_key].update(parse_sml(sensor))
