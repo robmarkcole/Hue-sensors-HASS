@@ -37,7 +37,6 @@ def parse_hue_api_response(response):
         modelid = sensor['modelid'][0:3]
         if modelid in ['RWL', 'SML', 'ZGP']:
             _key = modelid + '_' + sensor['uniqueid'][:-5]
-
             if modelid == 'RWL':
                 data_dict[_key] = parse_rwl(sensor)
             elif modelid == 'ZGP':
@@ -49,7 +48,8 @@ def parse_hue_api_response(response):
                     data_dict[_key].update(parse_sml(sensor))
 
         elif sensor['modelid'] == 'HA_GEOFENCE':
-            data_dict['Geofence'] = parse_geofence(sensor)
+            _key = 'Geofence_' + sensor['uniqueid']
+            data_dict[_key] = parse_geofence(sensor)
     return data_dict
 
 
