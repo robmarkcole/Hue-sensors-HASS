@@ -16,7 +16,7 @@ from homeassistant.const import (CONF_IP_ADDRESS, CONF_TOKEN)
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
 
-__version__ = '0.7'
+__version__ = '0.8'
 
 _LOGGER = logging.getLogger(__name__)
 
