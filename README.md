@@ -6,15 +6,15 @@
 
 Component for Hue sensors in Home-Assistant, **updated for 0.66 to be independent of the Hue hub platform**.
 
-Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder). You need to configure your Hue bridge IP and developer key, see [this link](https://www.hackster.io/robin-cole/hijack-a-hue-remote-to-control-anything-with-home-assistant-5239a4) for instructions.
+Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder). You need to set up [Hue bridge](https://www.home-assistant.io/components/hue/) first.
 
 Hue dimmer remotes can be used for a click and long press (hold button for 2 sec and see LED blink twice).
 
 ```
+device_tracker:
+  - platform: hue
 sensor:
   - platform: hue
-    ip_address: 192.168.1.1
-    token: QKNg2pcBVOalc4ecJX4iVhLSQ2g08ghafs086XpG
 ```
 
 As per [this issue](https://github.com/robmarkcole/Hue-sensors-HASS/issues/48) it is recommended to use the default naming options in the Hue app in order to ensure sensible sensor names in HA.
