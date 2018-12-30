@@ -47,9 +47,6 @@ def parse_hue_api_response(response):
                 else:
                     data_dict[_key].update(parse_sml(sensor))
 
-        elif sensor['modelid'] == 'HA_GEOFENCE':
-            _key = 'Geofence_' + sensor['uniqueid']
-            data_dict[_key] = parse_geofence(sensor)
     return data_dict
 
 
