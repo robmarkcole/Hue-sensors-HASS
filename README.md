@@ -1,5 +1,4 @@
-[![build status](http://img.shields.io/travis/robmarkcole/Hue-sensors-HASS/master.svg?style=flat)](https://travis-ci.org/robmarkcole/Hue-sensors-HASS)
-[![Coverage Status](https://coveralls.io/repos/github/robmarkcole/Hue-sensors-HASS/badge.svg?branch=master)](https://coveralls.io/github/robmarkcole/Hue-sensors-HASS?branch=master)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 # Hue-sensors-HASS
 [FOR COMMUNITY SUPPORT PLEASE USE THIS THREAD](https://community.home-assistant.io/t/hue-motion-sensors-remotes-custom-component)
