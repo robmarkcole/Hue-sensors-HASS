@@ -18,7 +18,7 @@ from ..device_tracker.hue import TYPE_GEOFENCE
 
 DEPENDENCIES = ["hue"]
 
-__version__ = "0.9"
+__version__ = "1.0"
 
 _LOGGER = logging.getLogger(__name__)
 
