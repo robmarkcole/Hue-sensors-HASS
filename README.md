@@ -3,7 +3,7 @@
 # Hue-sensors-HASS
 [FOR COMMUNITY SUPPORT PLEASE USE THIS THREAD](https://community.home-assistant.io/t/hue-motion-sensors-remotes-custom-component)
 
-**The latest stable release is 0.8. Only use a later release if you are a developer or someone who wants to help out by testing the latest changes.**
+**The latest stable release is 0.8. Only use a later release if you are a developer or someone who wants to help out by testing the latest changes. I don't own all the hardware so rely on community assistance for testing**
 
 Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder). You need to set up [Hue bridge](https://www.home-assistant.io/components/hue/) first.
 
