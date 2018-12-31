@@ -94,11 +94,15 @@ class HueDeviceScanner(DeviceScanner):
         return result
 
     async def async_update_info(self, now=None):
-        apis = [
-            bridge.api
-            for bridge in self.hass.data[hue.DOMAIN].values()
-            if bridge.api is not None
-        ]
+        """Get the bridge info."""
+        apis = []
+
+        for entry in self.hass.data[hue.DOMAIN].values():
+            try:
+                if entry.api is not None:
+                    apis.append(entry.api)
+            except:
+                pass
         if not apis:
             return
         with async_timeout.timeout(10):
