@@ -18,7 +18,7 @@ from ..device_tracker.hue import TYPE_GEOFENCE
 
 DEPENDENCIES = ["hue"]
 
-__version__ = "1.0"
+__version__ = "1.0.1"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -144,22 +144,19 @@ def parse_rwl(response):
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Set up the Hue sensors."""
-    data = HueSensorData(hass)
+    data = HueSensorData(hass, async_add_entities)
     await data.async_update_info()
-    sensors = []
-    for key in data.data.keys():
-        sensors.append(HueSensor(key, data))
-    async_add_entities(sensors)
     async_track_time_interval(hass, data.async_update_info, SCAN_INTERVAL)
 
 
 class HueSensorData(object):
     """Get the latest sensor data."""
 
-    def __init__(self, hass):
+    def __init__(self, hass, async_add_entities):
         """Initialize the data object."""
         self.hass = hass
-        self.data = None
+        self.data = {}
+        self.async_add_entities = async_add_entities
 
     async def async_update_info(self, now=None):
         """Get the bridge info."""
@@ -181,8 +178,11 @@ class HueSensorData(object):
             for sensor in api.sensors.values()
             if sensor.type != TYPE_GEOFENCE
         )
-        self.data = parse_hue_api_response(raw_sensors)
-        _LOGGER.debug("hue_api_response %s", self.data)
+        data = parse_hue_api_response(raw_sensors)
+        _LOGGER.debug("hue_api_response %s", data)
+        new_entities = data.keys() - self.data.keys()
+        self.data = data
+        self.async_add_entities(HueSensor(key, self) for key in new_entities)
 
 
 class HueSensor(Entity):
@@ -211,6 +211,11 @@ class HueSensor(Entity):
         return self._state
 
     @property
+    def available(self):
+        """Return if the sensor is available."""
+        return self._hue_id in self._data.data
+
+    @property
     def icon(self):
         """Icon to use in the frontend, if any."""
         return self._icon
@@ -222,41 +227,30 @@ class HueSensor(Entity):
 
     def update(self):
         """Update the sensor."""
-        self._state = self._data.data[self._hue_id]["state"]
+        data = self._data.data.get(self._hue_id)
+        if not data:
+            return
+        self._state = data["state"]
         try:
             if self._model == "SML":
                 self._icon = "mdi:run-fast"
-                self._attributes["light_level"] = self._data.data[self._hue_id][
-                    "light_level"
-                ]
-                self._attributes["battery"] = self._data.data[self._hue_id]["battery"]
-                self._attributes["last_updated"] = self._data.data[self._hue_id][
-                    "last_updated"
-                ]
-                self._attributes["lx"] = self._data.data[self._hue_id]["lx"]
-                self._attributes["dark"] = self._data.data[self._hue_id]["dark"]
-                self._attributes["daylight"] = self._data.data[self._hue_id]["daylight"]
-                self._attributes["temperature"] = self._data.data[self._hue_id][
-                    "temperature"
-                ]
-                self._attributes["on"] = self._data.data[self._hue_id]["on"]
-                self._attributes["reachable"] = self._data.data[self._hue_id][
-                    "reachable"
-                ]
+                self._attributes["light_level"] = data["light_level"]
+                self._attributes["battery"] = data["battery"]
+                self._attributes["last_updated"] = data["last_updated"]
+                self._attributes["lx"] = data["lx"]
+                self._attributes["dark"] = data["dark"]
+                self._attributes["daylight"] = data["daylight"]
+                self._attributes["temperature"] = data["temperature"]
+                self._attributes["on"] = data["on"]
+                self._attributes["reachable"] = data["reachable"]
             elif self._model == "RWL":
                 self._icon = "mdi:remote"
-                self._attributes["last_updated"] = self._data.data[self._hue_id][
-                    "last_updated"
-                ]
-                self._attributes["battery"] = self._data.data[self._hue_id]["battery"]
-                self._attributes["on"] = self._data.data[self._hue_id]["on"]
-                self._attributes["reachable"] = self._data.data[self._hue_id][
-                    "reachable"
-                ]
+                self._attributes["last_updated"] = data["last_updated"]
+                self._attributes["battery"] = data["battery"]
+                self._attributes["on"] = data["on"]
+                self._attributes["reachable"] = data["reachable"]
             elif self._model == "ZGP":
                 self._icon = "mdi:remote"
-                self._attributes["last_updated"] = self._data.data[self._hue_id][
-                    "last_updated"
-                ]
+                self._attributes["last_updated"] = data["last_updated"]
         except:
             _LOGGER.exception("Error updating Hue sensors")
