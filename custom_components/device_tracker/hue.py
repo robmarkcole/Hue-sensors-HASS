@@ -26,7 +26,7 @@ from homeassistant.components.device_tracker import (
     DeviceScanner,
 )
 from homeassistant.util import slugify
-from homeassistant.components import hue, zone
+from homeassistant.components import zone
 
 __version__ = "1.0.1"
 
@@ -36,6 +36,29 @@ _LOGGER = logging.getLogger(__name__)
 
 TYPE_GEOFENCE = "Geofence"
 MIN_TIME_BETWEEN_SCANS = timedelta(seconds=60)
+
+
+def get_bridges(hass):
+    from homeassistant.components import hue
+    from homeassistant.components.hue.bridge import HueBridge
+
+    return [
+        entry
+        for entry in hass.data[hue.DOMAIN].values()
+        if isinstance(entry, HueBridge) and entry.api
+    ]
+
+
+async def update_api(api):
+    import aiohue
+
+    try:
+        with async_timeout.timeout(10):
+            await api.update()
+    except (asyncio.TimeoutError, aiohue.AiohueException) as err:
+        _LOGGER.debug("Failed to fetch sensors: %s", err)
+        return False
+    return True
 
 
 async def async_setup_scanner(hass, config, async_see, discovery_info=None):
@@ -62,14 +85,14 @@ class HueDeviceScanner(DeviceScanner):
         if not last_updated or last_updated == "none":
             return
 
-        kwargs = dict(
-            dev_id=slugify("hue_{}".format(sensor.name)),
-            host_name=sensor.name,
-            attributes={
+        kwargs = {
+            "dev_id": slugify("hue_{}".format(sensor.name)),
+            "host_name": sensor.name,
+            "attributes": {
                 "last_updated": dt_util.as_local(dt_util.parse_datetime(last_updated)),
                 "unique_id": sensor.uniqueid,
             },
-        )
+        }
 
         if sensor.state.get("presence"):
             kwargs["location_name"] = STATE_HOME
@@ -95,22 +118,14 @@ class HueDeviceScanner(DeviceScanner):
 
     async def async_update_info(self, now=None):
         """Get the bridge info."""
-        apis = []
-
-        for entry in self.hass.data[hue.DOMAIN].values():
-            try:
-                if entry.api is not None:
-                    apis.append(entry.api)
-            except:
-                pass
-        if not apis:
+        bridges = get_bridges(self.hass)
+        if not bridges:
             return
-        with async_timeout.timeout(10):
-            await asyncio.wait([api.sensors.update() for api in apis])
+        await asyncio.wait([update_api(bridge.api.sensors) for bridge in bridges])
         sensors = [
             self.async_see_sensor(sensor)
-            for api in apis
-            for sensor in api.sensors.values()
+            for bridge in bridges
+            for sensor in bridge.api.sensors.values()
             if sensor.type == TYPE_GEOFENCE
         ]
         if not sensors:
