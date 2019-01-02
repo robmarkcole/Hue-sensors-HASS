@@ -28,7 +28,7 @@ from homeassistant.components.device_tracker import (
 from homeassistant.util import slugify
 from homeassistant.components import hue, zone
 
-__version__ = "1.0"
+__version__ = "1.0.1"
 
 DEPENDENCIES = ["hue"]
 
@@ -63,7 +63,7 @@ class HueDeviceScanner(DeviceScanner):
             return
 
         kwargs = dict(
-            dev_id=slugify(sensor.name),
+            dev_id=slugify("hue_{}".format(sensor.name)),
             host_name=sensor.name,
             attributes={
                 "last_updated": dt_util.as_local(dt_util.parse_datetime(last_updated)),
