@@ -35,7 +35,7 @@ DEPENDENCIES = ["hue"]
 _LOGGER = logging.getLogger(__name__)
 
 TYPE_GEOFENCE = "Geofence"
-MIN_TIME_BETWEEN_SCANS = timedelta(seconds=60)
+SCAN_INTERVAL = timedelta(seconds=60)
 
 
 def get_bridges(hass):
@@ -62,7 +62,7 @@ async def update_api(api):
 
 
 async def async_setup_scanner(hass, config, async_see, discovery_info=None):
-    interval = config.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
+    interval = config.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL)
     scanner = HueDeviceScanner(hass, async_see)
     await scanner.async_start(hass, interval)
     return True
@@ -77,7 +77,7 @@ class HueDeviceScanner(DeviceScanner):
     async def async_start(self, hass, interval):
         """Perform a first update and start polling at the given interval."""
         await self.async_update_info()
-        interval = max(interval, MIN_TIME_BETWEEN_SCANS)
+        interval = max(interval, SCAN_INTERVAL)
         async_track_time_interval(hass, self.async_update_info, interval)
 
     async def async_see_sensor(self, sensor):
@@ -121,7 +121,9 @@ class HueDeviceScanner(DeviceScanner):
         bridges = get_bridges(self.hass)
         if not bridges:
             return
-        await asyncio.wait([update_api(bridge.api.sensors) for bridge in bridges])
+        await asyncio.wait(
+            [update_api(bridge.api.sensors) for bridge in bridges], loop=self.hass.loop
+        )
         sensors = [
             self.async_see_sensor(sensor)
             for bridge in bridges

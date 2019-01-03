@@ -7,6 +7,7 @@ https://home-assistant.io/components/sensor.hue/
 import asyncio
 import async_timeout
 import logging
+import threading
 from datetime import timedelta
 
 from homeassistant.components.sensor import PLATFORM_SCHEMA
@@ -195,6 +196,7 @@ class HueSensorData(object):
     def __init__(self, hass, async_add_entities):
         """Initialize the data object."""
         self.hass = hass
+        self.lock = threading.Lock()
         self.data = {}
         self.sensors = {}
         self.async_add_entities = async_add_entities
@@ -230,10 +232,18 @@ class HueSensorData(object):
 
     async def async_update_info(self, now=None):
         """Get the bridge info."""
-        bridges = get_bridges(self.hass)
-        if not bridges:
+        locked = self.lock.acquire(False)
+        if not locked:
             return
-        await asyncio.wait([self.update_bridge(bridge) for bridge in bridges])
+        try:
+            bridges = get_bridges(self.hass)
+            if not bridges:
+                return
+            await asyncio.wait(
+                [self.update_bridge(bridge) for bridge in bridges], loop=self.hass.loop
+            )
+        finally:
+            self.lock.release()
         return True
 
 
@@ -246,6 +256,11 @@ class HueSensor(Entity):
         """Initialize the sensor object."""
         self._hue_id = hue_id
         self._data = data.data  # data is in .data
+
+    @property
+    def should_poll(self):
+        """No polling needed."""
+        return False
 
     @property
     def name(self):
