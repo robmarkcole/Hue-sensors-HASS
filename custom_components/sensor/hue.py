@@ -17,7 +17,7 @@ from homeassistant.helpers.event import async_track_time_interval
 
 DEPENDENCIES = ["hue"]
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 _LOGGER = logging.getLogger(__name__)
 
