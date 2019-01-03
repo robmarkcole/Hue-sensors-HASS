@@ -7,22 +7,38 @@ https://home-assistant.io/components/sensor.hue/
 import asyncio
 import async_timeout
 import logging
+import threading
 from datetime import timedelta
 
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.helpers.entity import Entity
-from homeassistant.components import hue
+from homeassistant.exceptions import PlatformNotReady
 from homeassistant.helpers.event import async_track_time_interval
-
-from ..device_tracker.hue import TYPE_GEOFENCE
 
 DEPENDENCIES = ["hue"]
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = timedelta(seconds=0.1)
+TYPE_GEOFENCE = "Geofence"
+ICONS = {"SML": "mdi:run-fast", "RWL": "mdi:remote", "ZGP": "mdi:remote"}
+ATTRS = {
+    "SML": [
+        "light_level",
+        "battery",
+        "last_updated",
+        "lx",
+        "dark",
+        "daylight",
+        "temperature",
+        "on",
+        "reachable",
+    ],
+    "RWL": ["last_updated", "battery", "on", "reachable"],
+    "ZGP": ["last_updated"],
+}
 
 
 def parse_hue_api_response(sensors):
@@ -142,10 +158,35 @@ def parse_rwl(response):
     return data
 
 
+def get_bridges(hass):
+    from homeassistant.components import hue
+    from homeassistant.components.hue.bridge import HueBridge
+
+    return [
+        entry
+        for entry in hass.data[hue.DOMAIN].values()
+        if isinstance(entry, HueBridge) and entry.api
+    ]
+
+
+async def update_api(api):
+    import aiohue
+
+    try:
+        with async_timeout.timeout(10):
+            await api.update()
+    except (asyncio.TimeoutError, aiohue.AiohueException) as err:
+        _LOGGER.debug("Failed to fetch sensors: %s", err)
+        return False
+    return True
+
+
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Set up the Hue sensors."""
     data = HueSensorData(hass, async_add_entities)
-    await data.async_update_info()
+    result = await data.async_update_info()
+    if not result:
+        raise PlatformNotReady
     async_track_time_interval(hass, data.async_update_info, SCAN_INTERVAL)
 
 
@@ -155,34 +196,55 @@ class HueSensorData(object):
     def __init__(self, hass, async_add_entities):
         """Initialize the data object."""
         self.hass = hass
+        self.lock = threading.Lock()
         self.data = {}
+        self.sensors = {}
         self.async_add_entities = async_add_entities
+
+    async def update_bridge(self, bridge):
+        available = await update_api(bridge.api.sensors)
+        if not available:
+            return
+
+        data = parse_hue_api_response(
+            sensor.raw
+            for sensor in bridge.api.sensors.values()
+            if sensor.type != TYPE_GEOFENCE
+        )
+
+        new_sensors = data.keys() - self.data.keys()
+        updated_sensors = [
+            key
+            for key, new in data.items()
+            if key in self.data and self.data[key] != new
+        ]
+        self.data.update(data)
+
+        new_entities = {
+            entity_id: HueSensor(entity_id, self) for entity_id in new_sensors
+        }
+        if new_entities:
+            _LOGGER.debug("Created %s", ", ".join(new_entities.keys()))
+            self.sensors.update(new_entities)
+            self.async_add_entities(new_entities.values(), True)
+        for entity_id in updated_sensors:
+            self.sensors[entity_id].async_schedule_update_ha_state()
 
     async def async_update_info(self, now=None):
         """Get the bridge info."""
-        apis = []
-
-        for entry in self.hass.data[hue.DOMAIN].values():
-            try:
-                if entry.api is not None:
-                    apis.append(entry.api)
-            except:
-                pass
-        if not apis:
+        locked = self.lock.acquire(False)
+        if not locked:
             return
-        with async_timeout.timeout(10):
-            await asyncio.wait([api.sensors.update() for api in apis])
-        raw_sensors = (
-            sensor.raw
-            for api in apis
-            for sensor in api.sensors.values()
-            if sensor.type != TYPE_GEOFENCE
-        )
-        data = parse_hue_api_response(raw_sensors)
-        _LOGGER.debug("hue_api_response %s", data)
-        new_entities = data.keys() - self.data.keys()
-        self.data = data
-        self.async_add_entities(HueSensor(key, self) for key in new_entities)
+        try:
+            bridges = get_bridges(self.hass)
+            if not bridges:
+                return
+            await asyncio.wait(
+                [self.update_bridge(bridge) for bridge in bridges], loop=self.hass.loop
+            )
+        finally:
+            self.lock.release()
+        return True
 
 
 class HueSensor(Entity):
@@ -193,64 +255,40 @@ class HueSensor(Entity):
     def __init__(self, hue_id, data):
         """Initialize the sensor object."""
         self._hue_id = hue_id
-        self._data = data  # data is in .data
-        self._icon = None
-        self._name = self._data.data[self._hue_id]["name"]
-        self._model = self._data.data[self._hue_id]["model"]
-        self._state = self._data.data[self._hue_id]["state"]
-        self._attributes = {}
+        self._data = data.data  # data is in .data
+
+    @property
+    def should_poll(self):
+        """No polling needed."""
+        return False
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return self._name
+        data = self._data.get(self._hue_id)
+        if data:
+            return data["name"]
 
     @property
     def state(self):
         """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def available(self):
-        """Return if the sensor is available."""
-        return self._hue_id in self._data.data
+        data = self._data.get(self._hue_id)
+        if data:
+            return data["state"]
 
     @property
     def icon(self):
         """Icon to use in the frontend, if any."""
-        return self._icon
+        data = self._data.get(self._hue_id)
+        if data:
+            icon = ICONS.get(data["model"])
+            if icon:
+                return icon
+        return self.ICON
 
     @property
     def device_state_attributes(self):
         """Attributes."""
-        return self._attributes
-
-    def update(self):
-        """Update the sensor."""
-        data = self._data.data.get(self._hue_id)
-        if not data:
-            return
-        self._state = data["state"]
-        try:
-            if self._model == "SML":
-                self._icon = "mdi:run-fast"
-                self._attributes["light_level"] = data["light_level"]
-                self._attributes["battery"] = data["battery"]
-                self._attributes["last_updated"] = data["last_updated"]
-                self._attributes["lx"] = data["lx"]
-                self._attributes["dark"] = data["dark"]
-                self._attributes["daylight"] = data["daylight"]
-                self._attributes["temperature"] = data["temperature"]
-                self._attributes["on"] = data["on"]
-                self._attributes["reachable"] = data["reachable"]
-            elif self._model == "RWL":
-                self._icon = "mdi:remote"
-                self._attributes["last_updated"] = data["last_updated"]
-                self._attributes["battery"] = data["battery"]
-                self._attributes["on"] = data["on"]
-                self._attributes["reachable"] = data["reachable"]
-            elif self._model == "ZGP":
-                self._icon = "mdi:remote"
-                self._attributes["last_updated"] = data["last_updated"]
-        except:
-            _LOGGER.exception("Error updating Hue sensors")
+        data = self._data.get(self._hue_id)
+        if data:
+            return {key: data.get(key) for key in ATTRS.get(data["model"], [])}
