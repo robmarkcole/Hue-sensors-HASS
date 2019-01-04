@@ -35,7 +35,7 @@ DEPENDENCIES = ["hue"]
 _LOGGER = logging.getLogger(__name__)
 
 TYPE_GEOFENCE = "Geofence"
-SCAN_INTERVAL = timedelta(seconds=60)
+SCAN_INTERVAL = DEFAULT_SCAN_INTERVAL
 
 
 def get_bridges(hass):

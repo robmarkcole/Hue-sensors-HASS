@@ -12,7 +12,6 @@ from datetime import timedelta
 
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.helpers.entity import Entity
-from homeassistant.exceptions import PlatformNotReady
 from homeassistant.helpers.event import async_track_time_interval
 
 DEPENDENCIES = ["hue"]
@@ -182,11 +181,9 @@ async def update_api(api):
 
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """Set up the Hue sensors."""
+    """Initialise Hue Bridge connection."""
     data = HueSensorData(hass, async_add_entities)
-    result = await data.async_update_info()
-    if not result:
-        raise PlatformNotReady
+    await data.async_update_info()
     async_track_time_interval(hass, data.async_update_info, SCAN_INTERVAL)
 
 
@@ -238,13 +235,15 @@ class HueSensorData(object):
         try:
             bridges = get_bridges(self.hass)
             if not bridges:
+                if now:
+                    # periodic task
+                    await asyncio.sleep(5)
                 return
             await asyncio.wait(
                 [self.update_bridge(bridge) for bridge in bridges], loop=self.hass.loop
             )
         finally:
             self.lock.release()
-        return True
 
 
 class HueSensor(Entity):
