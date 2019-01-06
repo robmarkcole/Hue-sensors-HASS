@@ -28,14 +28,14 @@ from homeassistant.components.device_tracker import (
 from homeassistant.util import slugify
 from homeassistant.components import zone
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 
 DEPENDENCIES = ["hue"]
 
 _LOGGER = logging.getLogger(__name__)
 
 TYPE_GEOFENCE = "Geofence"
-SCAN_INTERVAL = timedelta(seconds=60)
+SCAN_INTERVAL = DEFAULT_SCAN_INTERVAL
 
 
 def get_bridges(hass):

@@ -11,7 +11,8 @@ import threading
 from datetime import timedelta
 
 from homeassistant.components.sensor import PLATFORM_SCHEMA
-from homeassistant.helpers.entity import Entity
+from homeassistant.const import STATE_ON, STATE_OFF
+from homeassistant.components.binary_sensor import BinarySensorDevice
 from homeassistant.helpers.event import async_track_time_interval
 
 DEPENDENCIES = ["hue"]
@@ -50,55 +51,63 @@ def parse_hue_api_response(sensors):
         modelid = sensor["modelid"][0:3]
         if modelid in ["RWL", "SML", "ZGP"]:
             _key = modelid + "_" + sensor["uniqueid"][:-5]
-            if modelid == "RWL":
-                data_dict[_key] = parse_rwl(sensor)
-            elif modelid == "ZGP":
-                data_dict[_key] = parse_zgp(sensor)
+            if modelid == "SML":
+                if _key not in data_dict:
+                    data_dict[_key] = parse_sml(sensor)
+                else:
+                    data_dict[_key].update(parse_sml(sensor))
 
     return data_dict
 
 
-def parse_zgp(response):
-    """Parse the json response for a ZGPSWITCH Hue Tap."""
-    TAP_BUTTONS = {34: "1_click", 16: "2_click", 17: "3_click", 18: "4_click"}
-    press = response["state"]["buttonevent"]
-    if press is None:
-        button = "No data"
-    else:
-        button = TAP_BUTTONS[press]
+def parse_sml(response):
+    """Parse the json for a SML Hue motion sensor and return the data."""
+    if response["type"] == "ZLLLightLevel":
+        lightlevel = response["state"]["lightlevel"]
+        if lightlevel is not None:
+            lx = round(float(10 ** ((lightlevel - 1) / 10000)), 2)
+            dark = response["state"]["dark"]
+            daylight = response["state"]["daylight"]
+            data = {
+                "light_level": lightlevel,
+                "lx": lx,
+                "dark": dark,
+                "daylight": daylight,
+            }
+        else:
+            data = {
+                "light_level": "No light level data",
+                "lx": None,
+                "dark": None,
+                "daylight": None,
+            }
 
-    data = {
-        "model": "ZGP",
-        "name": response["name"],
-        "state": button,
-        "last_updated": response["state"]["lastupdated"].split("T"),
-    }
-    return data
+    elif response["type"] == "ZLLTemperature":
+        if response["state"]["temperature"] is not None:
+            data = {"temperature": response["state"]["temperature"] / 100.0}
+        else:
+            data = {"temperature": "No temperature data"}
 
+    elif response["type"] == "ZLLPresence":
+        name_raw = response["name"]
+        arr = name_raw.split()
+        arr.insert(-1, "motion")
+        name = " ".join(arr)
+        hue_state = response["state"]["presence"]
+        if hue_state is True:
+            state = STATE_ON
+        else:
+            state = STATE_OFF
 
-def parse_rwl(response):
-    """Parse the json response for a RWL Hue remote."""
-
-    """
-        I know it should be _released not _up
-        but _hold_up is too good to miss isn't it
-    """
-    responsecodes = {"0": "_click", "1": "_hold", "2": "_click_up", "3": "_hold_up"}
-
-    button = ""
-    if response["state"]["buttonevent"]:
-        press = str(response["state"]["buttonevent"])
-        button = str(press)[0] + responsecodes[press[-1]]
-
-    data = {
-        "model": "RWL",
-        "name": response["name"],
-        "state": button,
-        "battery": response["config"]["battery"],
-        "on": response["config"]["on"],
-        "reachable": response["config"]["reachable"],
-        "last_updated": response["state"]["lastupdated"].split("T"),
-    }
+        data = {
+            "model": "SML",
+            "name": name,
+            "state": state,
+            "battery": response["config"]["battery"],
+            "on": response["config"]["on"],
+            "reachable": response["config"]["reachable"],
+            "last_updated": response["state"]["lastupdated"].split("T"),
+        }
     return data
 
 
@@ -191,10 +200,8 @@ class HueSensorData(object):
             self.lock.release()
 
 
-class HueSensor(Entity):
+class HueSensor(BinarySensorDevice):
     """Class to hold Hue Sensor basic info."""
-
-    ICON = "mdi:run-fast"
 
     def __init__(self, hue_id, data):
         """Initialize the sensor object."""
@@ -214,21 +221,19 @@ class HueSensor(Entity):
             return data["name"]
 
     @property
+    def is_on(self):
+        """Return the state of the sensor."""
+        data = self._data.get(self._hue_id)
+        if data and data["model"] == "SML":
+            return data["state"] == STATE_ON
+        return None
+
+    @property
     def state(self):
         """Return the state of the sensor."""
         data = self._data.get(self._hue_id)
         if data:
             return data["state"]
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend, if any."""
-        data = self._data.get(self._hue_id)
-        if data:
-            icon = ICONS.get(data["model"])
-            if icon:
-                return icon
-        return self.ICON
 
     @property
     def device_class(self):
