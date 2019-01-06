@@ -10,6 +10,8 @@ Place the custom_components folder in your configuration directory (or add its c
 Hue dimmer remotes can be used for a click and long press (hold button for 2 sec and see LED blink twice).
 
 ```
+binary_sensor:
+  - platform: hue
 device_tracker:
   - platform: hue
 sensor:
@@ -30,15 +32,15 @@ default_view:
 
 Hue:
   entities:
-    - sensor.bedroom_motion_sensor
-    - sensor.hall_motion_sensor
-    - sensor.living_room_motion_sensor
+    - binary_sensor.bedroom_motion_sensor
+    - binary_sensor.hall_motion_sensor
+    - binary_sensor.living_room_motion_sensor
     - sensor.living_room_temperature
     - sensor.living_room_light_level
     - sensor.living_room_lux
     - sensor.living_room_remote
     - sensor.remote_bedroom
-    - sensor.robins_iphone
+    - device_tracker.robins_iphone
 ```
 
 Temperature, light level and other data in the sensor attributes can be broken out into their own sensor using a template sensor, for example:
@@ -49,12 +51,12 @@ Temperature, light level and other data in the sensor attributes can be broken o
 
     living_room_temperature:
       friendly_name: 'Living room temperature'
-      value_template: '{{states.sensor.living_room_motion_sensor.attributes.temperature}}'
+      value_template: '{{state_attr("binary_sensor.living_room_motion_sensor", "temperature")}}'
       unit_of_measurement: °C
 
     living_room_light_level:
       friendly_name: 'Living room light level'
-      value_template: '{{states.sensor.living_room_motion_sensor.attributes.lx}}'
+      value_template: '{{state_attr("binary_sensor.living_room_motion_sensor", "lx")}}'
       unit_of_measurement: lux
 ```
 
