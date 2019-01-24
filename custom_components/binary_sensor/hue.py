@@ -36,6 +36,7 @@ ATTRS = {
         "temperature",
         "on",
         "reachable",
+        "sensitivity",
     ],
     "RWL": ["last_updated", "battery", "on", "reachable"],
     "ZGP": ["last_updated"],
@@ -106,6 +107,7 @@ def parse_sml(response):
             "battery": response["config"]["battery"],
             "on": response["config"]["on"],
             "reachable": response["config"]["reachable"],
+            "sensitivity": response["config"]["sensitivity"],
             "last_updated": response["state"]["lastupdated"].split("T"),
         }
     return data
