@@ -35,6 +35,7 @@ ATTRS = {
         "temperature",
         "on",
         "reachable",
+        "sensitivity",
     ],
     "RWL": ["last_updated", "battery", "on", "reachable"],
     "ZGP": ["last_updated"],
