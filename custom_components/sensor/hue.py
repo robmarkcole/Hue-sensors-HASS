@@ -36,6 +36,7 @@ ATTRS = {
         "on",
         "reachable",
         "sensitivity",
+        "threshold",
     ],
     "RWL": ["last_updated", "battery", "on", "reachable"],
     "ZGP": ["last_updated"],

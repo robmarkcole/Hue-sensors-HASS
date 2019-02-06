@@ -37,6 +37,7 @@ ATTRS = {
         "on",
         "reachable",
         "sensitivity",
+        "threshold",
     ],
     "RWL": ["last_updated", "battery", "on", "reachable"],
     "ZGP": ["last_updated"],
@@ -64,7 +65,8 @@ def parse_hue_api_response(sensors):
 def parse_sml(response):
     """Parse the json for a SML Hue motion sensor and return the data."""
     if response["type"] == "ZLLLightLevel":
-        lightlevel = response["state"]["lightlevel"]
+        lightlevel = response["state"].get("lightlevel")
+        tholddark = response["config"].get("tholddark")
         if lightlevel is not None:
             lx = round(float(10 ** ((lightlevel - 1) / 10000)), 2)
             dark = response["state"]["dark"]
@@ -74,6 +76,7 @@ def parse_sml(response):
                 "lx": lx,
                 "dark": dark,
                 "daylight": daylight,
+                "threshold": tholddark,
             }
         else:
             data = {
@@ -81,6 +84,7 @@ def parse_sml(response):
                 "lx": None,
                 "dark": None,
                 "daylight": None,
+                "threshold": tholddark,
             }
 
     elif response["type"] == "ZLLTemperature":
