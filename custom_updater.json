@@ -1,24 +1,24 @@
 {
    "device_tracker.hue" : {
-      "updated_at" : "2019-01-06",
+      "updated_at" : "2019-02-06",
       "local_location" : "/custom_components/device_tracker/hue.py",
-      "version" : "1.0.3",
+      "version" : "1.0.4",
       "changelog" : "https://github.com/robmarkcole/Hue-sensors-HASS/releases/latest",
       "visit_repo" : "https://github.com/robmarkcole/Hue-sensors-HASS",
       "remote_location" : "https://raw.githubusercontent.com/robmarkcole/Hue-sensors-HASS/master/custom_components/device_tracker/hue.py"
    },
    "binary_sensor.hue" : {
       "changelog" : "https://github.com/robmarkcole/Hue-sensors-HASS/releases/latest",
-      "version" : "1.0.3",
+      "version" : "1.0.4",
       "local_location" : "/custom_components/binary_sensor/hue.py",
-      "updated_at" : "2019-01-06",
+      "updated_at" : "2019-02-06",
       "visit_repo" : "https://github.com/robmarkcole/Hue-sensors-HASS",
       "remote_location" : "https://raw.githubusercontent.com/robmarkcole/Hue-sensors-HASS/master/custom_components/binary_sensor/hue.py"
    },
    "sensor.hue" : {
-      "version" : "1.0.3",
+      "version" : "1.0.4",
       "changelog" : "https://github.com/robmarkcole/Hue-sensors-HASS/releases/latest",
-      "updated_at" : "2019-01-06",
+      "updated_at" : "2019-02-06",
       "local_location" : "/custom_components/sensor/hue.py",
       "remote_location" : "https://raw.githubusercontent.com/robmarkcole/Hue-sensors-HASS/master/custom_components/sensor/hue.py",
       "visit_repo" : "https://github.com/robmarkcole/Hue-sensors-HASS"
