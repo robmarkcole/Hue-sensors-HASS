@@ -87,7 +87,7 @@ def parse_rwl(response):
     """
     responsecodes = {"0": "_click", "1": "_hold", "2": "_click_up", "3": "_hold_up"}
 
-    button = ""
+    button = None
     if response["state"]["buttonevent"]:
         press = str(response["state"]["buttonevent"])
         button = str(press)[0] + responsecodes[press[-1]]
@@ -157,11 +157,18 @@ class HueSensorData(object):
         )
 
         new_sensors = data.keys() - self.data.keys()
-        updated_sensors = [
-            key
-            for key, new in data.items()
-            if key in self.data and self.data[key] != new
-        ]
+        updated_sensors = []
+        for key, new in data.items():
+            new['changed'] = True
+            old = self.data.get(key)
+            if not old or old == new:
+                continue
+            updated_sensors.append(key)
+            if (
+                old["last_updated"] == new["last_updated"]
+                and old["state"] == new["state"]
+            ):
+                new['changed'] = False
         self.data.update(data)
 
         new_entities = {
@@ -219,7 +226,7 @@ class HueSensor(Entity):
     def state(self):
         """Return the state of the sensor."""
         data = self._data.get(self._hue_id)
-        if data:
+        if data and data["changed"]:
             return data["state"]
 
     @property
