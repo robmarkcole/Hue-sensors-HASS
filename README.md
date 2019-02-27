@@ -3,8 +3,6 @@
 # Hue-sensors-HASS
 [FOR COMMUNITY SUPPORT PLEASE USE THIS THREAD](https://community.home-assistant.io/t/hue-motion-sensors-remotes-custom-component)
 
-**The latest stable release is 0.8. Only use a later release if you are a developer or someone who wants to help out by testing the latest changes. I don't own all the hardware so rely on community assistance for testing**
-
 Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder). You need to set up [Hue bridge](https://www.home-assistant.io/components/hue/) first.
 
 Hue dimmer remotes can be used for a click and long press (hold button for 2 sec and see LED blink twice).
@@ -22,7 +20,7 @@ As per [this issue](https://github.com/robmarkcole/Hue-sensors-HASS/issues/48) i
 
 ## Front end display
 
-To add the following group to your HA frontend, add the following to groups.yaml (obviously editing to use your sensors):
+To add the following group to your HA frontend, add the following to `groups.yaml` (obviously editing to use your sensors):
 
 ```
 default_view:
