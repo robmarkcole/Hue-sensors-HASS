@@ -9,11 +9,11 @@ Hue dimmer remotes can be used for a click and long press (hold button for 2 sec
 
 ```
 binary_sensor:
-  - platform: hue
+  - platform: huesensor
 device_tracker:
-  - platform: hue
+  - platform: huesensor
 sensor:
-  - platform: hue
+  - platform: huesensor
 ```
 
 As per [this issue](https://github.com/robmarkcole/Hue-sensors-HASS/issues/48) it is recommended to use the default naming options in the Hue app in order to ensure sensible sensor names in HA.
