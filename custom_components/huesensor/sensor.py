@@ -22,7 +22,7 @@ _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = timedelta(seconds=0.1)
 TYPE_GEOFENCE = "Geofence"
-ICONS = {"SML": "mdi:run", "RWL": "mdi:remote", "ZGP": "mdi:remote"}
+ICONS = {"SML": "mdi:run", "RWL": "mdi:remote", "ZGP": "mdi:remote", "FOH": "mdi:light-switch"}
 DEVICE_CLASSES = {"SML": "motion"}
 ATTRS = {
     "SML": [
@@ -40,6 +40,7 @@ ATTRS = {
     ],
     "RWL": ["last_updated", "battery", "on", "reachable"],
     "ZGP": ["last_updated"],
+    "FOH": ["last_updated"]
 }
 
 
@@ -56,6 +57,10 @@ def parse_hue_api_response(sensors):
                 data_dict[_key] = parse_rwl(sensor)
             elif modelid == "ZGP":
                 data_dict[_key] = parse_zgp(sensor)
+
+        elif modelid == 'FOH': ############# New Model ID
+            _key = modelid + '_' + sensor['uniqueid'][-5:] ###needed for uniqueness
+            data_dict[_key] = parse_foh(sensor)
 
     return data_dict
 
@@ -101,6 +106,36 @@ def parse_rwl(response):
         "reachable": response["config"]["reachable"],
         "last_updated": response["state"]["lastupdated"].split("T"),
     }
+    return data
+
+
+def parse_foh(response):
+    """Parse the JSON response for a FOHSWITCH (type still = ZGPSwitch)"""
+    FOH_BUTTONS = {
+        16: 'left_upper_press',
+        20: 'left_upper_release',
+        17: 'left_lower_press',
+        21: 'left_lower_release',
+        18: 'right_lower_press',
+        22: 'right_lower_release',
+        19: 'right_upper_press',
+        23: 'right_upper_release',
+        100: 'double_upper_press',
+        101: 'double_upper_release',
+        98: 'double_lower_press',
+        99: 'double_lower_release'
+    }
+    
+    press = response['state']['buttonevent']
+    if press is None:
+        button = 'No data'
+    else:
+        button =FOH_BUTTONS[press]
+
+    data = {'model':'FOH',
+            'name': response['name'],
+            'state': button,
+            'last_updated': response['state']['lastupdated'].split('T')}
     return data
 
 
