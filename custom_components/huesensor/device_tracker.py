@@ -28,7 +28,7 @@ from homeassistant.components.device_tracker import (
 from homeassistant.util import slugify
 from homeassistant.components import zone
 
-__version__ = "1.0.5"
+__version__ = "1.4"
 
 DEPENDENCIES = ["hue"]
 
