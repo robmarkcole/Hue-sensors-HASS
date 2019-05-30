@@ -127,7 +127,7 @@ def parse_foh(response):
     }
     
     press = response['state']['buttonevent']
-    if press is None:
+    if press == None or press == 0 :
         button = 'No data'
     else:
         button =FOH_BUTTONS[press]
