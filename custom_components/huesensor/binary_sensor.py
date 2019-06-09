@@ -121,11 +121,13 @@ def get_bridges(hass):
     from homeassistant.components import hue
     from homeassistant.components.hue.bridge import HueBridge
 
-    return [
-        entry
-        for entry in hass.data[hue.DOMAIN].values()
-        if isinstance(entry, HueBridge) and entry.api
-    ]
+    if(hue.DOMAIN in hass.data):
+        return [
+            entry
+            for entry in hass.data[hue.DOMAIN].values()
+            if isinstance(entry, HueBridge) and entry.api
+        ]
+    return False
 
 
 async def update_api(api):
