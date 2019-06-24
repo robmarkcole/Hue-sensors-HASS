@@ -63,15 +63,7 @@ Temperature, light level and other data in the sensor attributes can be broken o
 </p>
 
 ## Track Updates
-This custom component can be tracked with the help of [custom-lovelace](https://github.com/ciotlosm/custom-lovelace).
-
-In your configuration.yaml
-
- ```
-custom_updater:
- component_urls:
-   - https://raw.githubusercontent.com/robmarkcole/Hue-sensors-HASS/master/custom_updater.json
-```
+This custom component can be tracked with the help of [HACS](https://github.com/custom-components/hacs).
 
 ## Debugging
 

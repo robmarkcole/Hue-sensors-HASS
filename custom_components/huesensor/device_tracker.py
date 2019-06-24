@@ -28,7 +28,6 @@ from homeassistant.const import (
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import slugify
 
-__version__ = "1.5"
 
 DEPENDENCIES = ["hue"]
 
