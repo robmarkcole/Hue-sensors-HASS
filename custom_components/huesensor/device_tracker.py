@@ -5,37 +5,36 @@ For more details about this platform, please refer to the documentation at
 https://home-assistant.io/components/sensor.hue/
 """
 import asyncio
-import async_timeout
-from datetime import timedelta
 import logging
+from datetime import timedelta
 
+import async_timeout
 import homeassistant.util.dt as dt_util
+from homeassistant.components.device_tracker import PLATFORM_SCHEMA
+from homeassistant.components.device_tracker.const import (
+    ATTR_ATTRIBUTES,
+    CONF_SCAN_INTERVAL,
+    DOMAIN,
+    ENTITY_ID_FORMAT,
+)
+from homeassistant.components.device_tracker.legacy import DeviceScanner
 from homeassistant.const import (
-    STATE_HOME,
-    STATE_NOT_HOME,
     ATTR_GPS_ACCURACY,
     ATTR_LATITUDE,
     ATTR_LONGITUDE,
+    STATE_HOME,
+    STATE_NOT_HOME,
 )
 from homeassistant.helpers.event import async_track_time_interval
-from homeassistant.components.device_tracker import (
-    CONF_SCAN_INTERVAL,
-    DEFAULT_SCAN_INTERVAL,
-    DOMAIN,
-    PLATFORM_SCHEMA,
-    DeviceScanner,
-)
 from homeassistant.util import slugify
-from homeassistant.components import zone
 
-__version__ = "1.5"
 
 DEPENDENCIES = ["hue"]
 
 _LOGGER = logging.getLogger(__name__)
 
 TYPE_GEOFENCE = "Geofence"
-SCAN_INTERVAL = DEFAULT_SCAN_INTERVAL
+DEFAULT_SCAN_INTERVAL = timedelta(seconds=30)
 
 
 def get_bridges(hass):
@@ -64,7 +63,7 @@ async def update_api(api):
 
 
 async def async_setup_scanner(hass, config, async_see, discovery_info=None):
-    interval = config.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL)
+    interval = config.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
     scanner = HueDeviceScanner(hass, async_see)
     await scanner.async_start(hass, interval)
     return True
@@ -79,7 +78,7 @@ class HueDeviceScanner(DeviceScanner):
     async def async_start(self, hass, interval):
         """Perform a first update and start polling at the given interval."""
         await self.async_update_info()
-        interval = max(interval, SCAN_INTERVAL)
+        interval = max(interval, DEFAULT_SCAN_INTERVAL)
         async_track_time_interval(hass, self.async_update_info, interval)
 
     async def async_see_sensor(self, sensor):

@@ -16,7 +16,6 @@ from homeassistant.helpers.event import async_track_time_interval
 
 DEPENDENCIES = ["hue"]
 
-__version__ = "1.5"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -69,7 +68,7 @@ def parse_zgp(response):
     """Parse the json response for a ZGPSWITCH Hue Tap."""
     TAP_BUTTONS = {34: "1_click", 16: "2_click", 17: "3_click", 18: "4_click"}
     press = response["state"]["buttonevent"]
-    if press is None:
+    if press is None or press not in TAP_BUTTONS:
         button = "No data"
     else:
         button = TAP_BUTTONS[press]
@@ -127,7 +126,7 @@ def parse_foh(response):
     }
     
     press = response['state']['buttonevent']
-    if press == None or press == 0 :
+    if press is None or press not in FOH_BUTTONS:
         button = 'No data'
     else:
         button =FOH_BUTTONS[press]
