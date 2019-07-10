@@ -171,7 +171,7 @@ class HueSensorData(object):
         new_sensors = data.keys() - self.data.keys()
         updated_sensors = []
         for key, new in data.items():
-            new['changed'] = True
+            new["changed"] = True
             old = self.data.get(key)
             if not old or old == new:
                 continue
@@ -180,7 +180,7 @@ class HueSensorData(object):
                 old["last_updated"] == new["last_updated"]
                 and old["state"] == new["state"]
             ):
-                new['changed'] = False
+                new["changed"] = False
         self.data.update(data)
 
         new_entities = {
