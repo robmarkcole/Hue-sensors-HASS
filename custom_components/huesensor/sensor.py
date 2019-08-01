@@ -56,10 +56,11 @@ ATTRS = {
     ],
 }
 
+
 def parse_hue_api_response(sensors):
     """Take in the Hue API json response."""
     data_dict = {}  # The list of sensors, referenced by their hue_id.
-    
+
     # Loop over all keys (1,2 etc) to identify sensors and get data.
     for sensor in sensors:
         modelid = sensor["modelid"][0:3]
