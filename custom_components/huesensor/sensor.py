@@ -264,6 +264,11 @@ class HueSensor(Entity):
             return data["name"]
 
     @property
+    def unique_id(self):
+        """Return the ID of this Hue sensor."""
+        return self._hue_id[+4:][:-3]
+
+    @property
     def state(self):
         """Return the state of the sensor."""
         data = self._data.get(self._hue_id)
