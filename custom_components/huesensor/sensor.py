@@ -24,6 +24,7 @@ TYPE_GEOFENCE = "Geofence"
 ICONS = {
     "SML": "mdi:run",
     "RWL": "mdi:remote",
+    "ROM": "mdi:remote",    
     "ZGP": "mdi:remote",
     "FOH": "mdi:light-switch",
 }
@@ -43,6 +44,7 @@ ATTRS = {
         "threshold",
     ],
     "RWL": ["last_updated", "battery", "on", "reachable"],
+    "ROM": ["last_updated", "battery", "on", "reachable"],
     "ZGP": ["last_updated"],
     "FOH": ["last_updated"],
 }
@@ -55,9 +57,9 @@ def parse_hue_api_response(sensors):
     # Loop over all keys (1,2 etc) to identify sensors and get data.
     for sensor in sensors:
         modelid = sensor["modelid"][0:3]
-        if modelid in ["RWL", "SML", "ZGP"]:
+        if modelid in ["RWL", "ROM", "SML", "ZGP"]:
             _key = modelid + "_" + sensor["uniqueid"][:-5]
-            if modelid == "RWL":
+            if modelid == "RWL" or modelid == "ROM":
                 data_dict[_key] = parse_rwl(sensor)
             elif modelid == "ZGP":
                 data_dict[_key] = parse_zgp(sensor)
@@ -264,6 +266,11 @@ class HueSensor(Entity):
         data = self._data.get(self._hue_id)
         if data:
             return data["name"]
+
+    @property
+    def unique_id(self):
+        """Return the ID of this Hue sensor."""
+        return self._hue_id[+4:][:-3]
 
     @property
     def state(self):
