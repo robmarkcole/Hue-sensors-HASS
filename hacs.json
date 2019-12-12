@@ -1,0 +1,6 @@
+{
+  "name": "Hue sensor advanced",
+  "country": "UK",
+  "domains": ["device_tracker", "sensor"],
+  "homeassistant": "0.99.9"
+}
