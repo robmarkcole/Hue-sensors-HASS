@@ -66,16 +66,17 @@ def parse_hue_api_response(sensors):
     # Loop over all keys (1,2 etc) to identify sensors and get data.
     for sensor in sensors:
         modelid = sensor["modelid"][0:3]
-        if modelid in ["RWL", "ROM", "SML", "ZGP"]:
+        if modelid in ["RWL", "ROM", "SML"]:
             _key = modelid + "_" + sensor["uniqueid"][:-5]
             if modelid == "RWL" or modelid == "ROM":
                 data_dict[_key] = parse_rwl(sensor)
-            elif modelid == "ZGP":
-                data_dict[_key] = parse_zgp(sensor)
 
-        elif modelid == "FOH":  ############# New Model ID
-            _key = modelid + "_" + sensor["uniqueid"][-5:]  ###needed for uniqueness
-            data_dict[_key] = parse_foh(sensor)
+        elif modelid in ["FOH", "ZGP"]:  ############# New Model ID
+            _key = modelid + "_" + sensor["uniqueid"][-14:-3]  ###needed for uniqueness
+            if modelid == "FOH":
+                data_dict[_key] = parse_foh(sensor)
+            elif modlid == "ZGP":
+                data_dict[_key] = parse_zgp(sensor)
 
         elif modelid == "Z3-": #### Newest Model ID / Lutron Aurora / Hue Bridge treats it as two sensors, I wanted them combined
             if sensor["type"] == "ZLLRelativeRotary":   # Rotary Dial
@@ -340,7 +341,7 @@ class HueSensor(Entity):
     @property
     def unique_id(self):
         """Return the ID of this Hue sensor."""
-        return self._hue_id[+4:][:-3]
+        return self._hue_id
 
     @property
     def state(self):
