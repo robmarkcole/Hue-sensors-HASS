@@ -75,7 +75,7 @@ def parse_hue_api_response(sensors):
             _key = modelid + "_" + sensor["uniqueid"][-14:-3]  ###needed for uniqueness
             if modelid == "FOH":
                 data_dict[_key] = parse_foh(sensor)
-            elif modlid == "ZGP":
+            elif modelid == "ZGP":
                 data_dict[_key] = parse_zgp(sensor)
 
         elif modelid == "Z3-": #### Newest Model ID / Lutron Aurora / Hue Bridge treats it as two sensors, I wanted them combined
