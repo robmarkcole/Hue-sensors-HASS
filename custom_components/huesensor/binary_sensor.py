@@ -237,7 +237,7 @@ class HueSensor(BinarySensorDevice):
     @property
     def unique_id(self):
         """Return the ID of this Hue sensor."""
-        return self._hue_id[+4:][:-3]
+        return self._hue_id
 
     @property
     def is_on(self):
