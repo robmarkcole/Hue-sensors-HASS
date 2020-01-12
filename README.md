@@ -13,7 +13,7 @@ Alternatively it can be installed via [HACS](https://hacs.xyz/).
 
 ## Configuration
 
-Once installed you need to setup the `huesensor` integration.
+Once installed you need to setup the `huesensor` integration in your configuration.
 
 ```
 binary_sensor:
