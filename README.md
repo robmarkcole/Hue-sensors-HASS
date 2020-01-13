@@ -5,9 +5,15 @@
 # Hue-sensors-HASS
 [FOR COMMUNITY SUPPORT PLEASE USE THIS THREAD](https://community.home-assistant.io/t/hue-motion-sensors-remotes-custom-component)
 
-Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder). You need to set up [Hue bridge](https://www.home-assistant.io/components/hue/) first.
+## Installation
 
-Hue dimmer remotes can be used for a click and long press (hold button for 2 sec and see LED blink twice).
+Place the `custom_components` folder in your configuration directory (or add its contents to an existing `custom_components` folder). You need to set up your [Hue bridge](https://www.home-assistant.io/integrations/hue) first.
+
+Alternatively it can be installed via [HACS](https://hacs.xyz/).
+
+## Configuration
+
+Once installed you need to setup the `huesensor` integration in your configuration.
 
 ```
 binary_sensor:
@@ -17,6 +23,8 @@ device_tracker:
 sensor:
   - platform: huesensor
 ```
+
+Hue dimmer remotes can be used for a click and long press (hold button for 2 sec and see LED blink twice).
 
 As per [this issue](https://github.com/robmarkcole/Hue-sensors-HASS/issues/48) it is recommended to use the default naming options in the Hue app in order to ensure sensible sensor names in HA.
 
@@ -65,7 +73,8 @@ Temperature, light level and other data in the sensor attributes can be broken o
 </p>
 
 ## Track Updates
-This custom component can be tracked with the help of [HACS](https://github.com/custom-components/hacs).
+
+This custom component can be tracked with the help of [HACS](https://hacs.xyz/).
 
 ## Debugging
 
