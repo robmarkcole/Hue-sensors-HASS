@@ -10,8 +10,18 @@ import logging
 import threading
 from datetime import timedelta
 
-from homeassistant.components.sensor import PLATFORM_SCHEMA
-from homeassistant.helpers.entity import Entity
+from homeassistant.components.remote import (
+    PLATFORM_SCHEMA,
+    RemoteDevice,
+)
+from homeassistant.helpers.entity import (
+    Entity,
+    ToggleEntity,
+)
+from homeassistant.const import (
+    STATE_OFF,
+)
+
 from homeassistant.helpers.event import async_track_time_interval
 
 DEPENDENCIES = ["hue"]
@@ -22,7 +32,6 @@ _LOGGER = logging.getLogger(__name__)
 SCAN_INTERVAL = timedelta(seconds=0.1)
 TYPE_GEOFENCE = "Geofence"
 ICONS = {
-    "SML": "mdi:run",
     "RWL": "mdi:remote",
     "ROM": "mdi:remote",    
     "ZGP": "mdi:remote",
@@ -31,19 +40,6 @@ ICONS = {
 }
 DEVICE_CLASSES = {"SML": "motion"}
 ATTRS = {
-    "SML": [
-        "light_level",
-        "battery",
-        "last_updated",
-        "lx",
-        "dark",
-        "daylight",
-        "temperature",
-        "on",
-        "reachable",
-        "sensitivity",
-        "threshold",
-    ],
     "RWL": ["last_updated", "battery", "on", "reachable"],
     "ROM": ["last_updated", "battery", "on", "reachable"],
     "ZGP": ["last_updated"],
@@ -58,7 +54,6 @@ ATTRS = {
     ],
 }
 
-
 def parse_hue_api_response(sensors):
     """Take in the Hue API json response."""
     data_dict = {}  # The list of sensors, referenced by their hue_id.
@@ -66,7 +61,7 @@ def parse_hue_api_response(sensors):
     # Loop over all keys (1,2 etc) to identify sensors and get data.
     for sensor in sensors:
         modelid = sensor["modelid"][0:3]
-        if modelid in ["RWL", "ROM", "SML"]:
+        if modelid in ["RWL", "ROM"]:
             _key = modelid + "_" + sensor["uniqueid"][:-5]
             if modelid == "RWL" or modelid == "ROM":
                 data_dict[_key] = parse_rwl(sensor)
@@ -245,12 +240,12 @@ async def update_api(api):
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Initialise Hue Bridge connection."""
-    data = HueSensorData(hass, async_add_entities)
+    data = HueRemoteData(hass, async_add_entities)
     await data.async_update_info()
     async_track_time_interval(hass, data.async_update_info, SCAN_INTERVAL)
 
 
-class HueSensorData(object):
+class HueRemoteData(object):
     """Get the latest sensor data."""
 
     def __init__(self, hass, async_add_entities):
@@ -288,7 +283,7 @@ class HueSensorData(object):
         self.data.update(data)
 
         new_entities = {
-            entity_id: HueSensor(entity_id, self) for entity_id in new_sensors
+            entity_id: HueRemote(entity_id, self) for entity_id in new_sensors
         }
         if new_entities:
             _LOGGER.debug("Created %s", ", ".join(new_entities.keys()))
@@ -316,13 +311,13 @@ class HueSensorData(object):
             self.lock.release()
 
 
-class HueSensor(Entity):
-    """Class to hold Hue Sensor basic info."""
+class HueRemote(RemoteDevice):
+    """Class to hold Hue Remote basic info."""
 
-    ICON = "mdi:run-fast"
+    ICON = "mdi:remote"
 
     def __init__(self, hue_id, data):
-        """Initialize the sensor object."""
+        """Initialize the remote object."""
         self._hue_id = hue_id
         self._data = data.data  # data is in .data
 
@@ -347,7 +342,14 @@ class HueSensor(Entity):
     def state(self):
         """Return the state of the sensor."""
         data = self._data.get(self._hue_id)
-        if data and data["changed"]:
+        if data:
+            modelid = data["model"];       
+
+            if modelid in ["RWL", "ROM"]:
+                button = data["state"][0];
+                if button == "4":
+                    return STATE_OFF
+
             return data["state"]
 
     @property
@@ -375,3 +377,9 @@ class HueSensor(Entity):
         data = self._data.get(self._hue_id)
         if data:
             return {key: data.get(key) for key in ATTRS.get(data["model"], [])}
+
+    def turn_on(self, **kwargs):
+        """Do nothing."""
+
+    def turn_off(self, **kwargs):
+        """Do nothing."""
