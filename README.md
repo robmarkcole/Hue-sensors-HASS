@@ -22,6 +22,8 @@ device_tracker:
   - platform: huesensor
 sensor:
   - platform: huesensor
+remote:
+  - platform: huesensor
 ```
 
 Hue dimmer remotes can be used for a click and long press (hold button for 2 sec and see LED blink twice).
