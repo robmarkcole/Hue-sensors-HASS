@@ -7,22 +7,18 @@
 
 ## Installation
 
-Place the `custom_components` folder in your configuration directory (or add its contents to an existing `custom_components` folder). You need to set up your [Hue bridge](https://www.home-assistant.io/integrations/hue) first.
-
-Alternatively it can be installed via [HACS](https://hacs.xyz/).
+Place the `custom_components` folder in your configuration directory (or add its contents to an existing `custom_components` folder). You need to set up your [Hue bridge](https://www.home-assistant.io/integrations/hue) first. Alternatively install via [HACS](https://hacs.xyz/).
 
 ## Configuration
 
-Once installed you need to setup the `huesensor` integration in your configuration.
+Once installed add to your configuration:
 
 ```
 binary_sensor:
   - platform: huesensor
-device_tracker:
-  - platform: huesensor
-sensor:
-  - platform: huesensor
 remote:
+  - platform: huesensor
+device_tracker:
   - platform: huesensor
 ```
 
@@ -45,12 +41,6 @@ Hue:
     - binary_sensor.bedroom_motion_sensor
     - binary_sensor.hall_motion_sensor
     - binary_sensor.living_room_motion_sensor
-    - sensor.living_room_temperature
-    - sensor.living_room_light_level
-    - sensor.living_room_lux
-    - sensor.living_room_remote
-    - sensor.remote_bedroom
-    - device_tracker.robins_iphone
 ```
 
 Temperature, light level and other data in the sensor attributes can be broken out into their own sensor using a template sensor, for example:
