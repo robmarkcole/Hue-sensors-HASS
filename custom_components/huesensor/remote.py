@@ -38,12 +38,13 @@ ICONS = {
 }
 DEVICE_CLASSES = {"SML": "motion"}
 ATTRS = {
-    "RWL": ["last_updated", "battery", "on", "reachable"],
-    "ROM": ["last_updated", "battery", "on", "reachable"],
-    "ZGP": ["last_updated"],
-    "FOH": ["last_updated"],
+    "RWL": ["last_updated", "last_button_event", "battery", "on", "reachable"],
+    "ROM": ["last_updated", "last_button_event", "battery", "on", "reachable"],
+    "ZGP": ["last_updated", "last_button_event"],
+    "FOH": ["last_updated", "last_button_event"],
     "Z3-": [
         "last_updated",
+        "last_button_event",
         "battery",
         "on",
         "reachable",
@@ -107,6 +108,7 @@ def parse_zgp(response):
         "model": "ZGP",
         "name": response["name"],
         "state": button,
+        "last_button_event": button,
         "last_updated": response["state"]["lastupdated"].split("T"),
     }
     return data
@@ -133,6 +135,7 @@ def parse_rwl(response):
         "battery": response["config"]["battery"],
         "on": response["config"]["on"],
         "reachable": response["config"]["reachable"],
+        "last_button_event": button,
         "last_updated": response["state"]["lastupdated"].split("T"),
     }
     return data
@@ -165,6 +168,7 @@ def parse_foh(response):
         "model": "FOH",
         "name": response["name"],
         "state": button,
+        "last_button_event": button,
         "last_updated": response["state"]["lastupdated"].split("T"),
     }
     return data
@@ -191,6 +195,7 @@ def parse_z3_rotary(response):
         "battery": response["config"]["battery"],
         "on": response["config"]["on"],
         "reachable": response["config"]["reachable"],
+        "last_button_event": button,
         "last_updated": response["state"]["lastupdated"].split("T"),
     }
     return data
@@ -212,7 +217,10 @@ def parse_z3_switch(response):
     else:
         button = Z3_BUTTON[press]
 
-    data = {"state": button}
+    data = {
+        "last_button_event": button,
+        "state": button
+    }
     return data
 
 
@@ -370,6 +378,11 @@ class HueRemote(RemoteDevice):
         data = self._data.get(self._hue_id)
         if data:
             return {key: data.get(key) for key in ATTRS.get(data["model"], [])}
+
+    @property
+    def force_update(self):
+        """Force update."""
+        return True
 
     def turn_on(self, **kwargs):
         """Do nothing."""
