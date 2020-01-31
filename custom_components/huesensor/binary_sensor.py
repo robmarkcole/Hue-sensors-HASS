@@ -37,6 +37,7 @@ ATTRS = {
         "reachable",
         "sensitivity",
         "threshold",
+        "tholdoffset",
     ],
     "RWL": ["last_updated", "battery", "on", "reachable"],
     "ZGP": ["last_updated"],
@@ -76,6 +77,7 @@ def parse_sml(response):
                 "dark": dark,
                 "daylight": daylight,
                 "threshold": tholddark,
+                "tholdoffset": tholdoffset,
             }
         else:
             data = {
@@ -84,6 +86,7 @@ def parse_sml(response):
                 "dark": None,
                 "daylight": None,
                 "threshold": tholddark,
+                "tholdoffset": None,
             }
 
     elif response["type"] == "ZLLTemperature":
