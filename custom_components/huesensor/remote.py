@@ -382,7 +382,7 @@ class HueRemote(RemoteDevice):
     @property
     def force_update(self):
         """Force update."""
-        return True
+        return False
 
     def turn_on(self, **kwargs):
         """Do nothing."""
