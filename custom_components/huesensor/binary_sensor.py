@@ -1,8 +1,5 @@
 """
-Sensor for checking the status of Hue sensors.
-
-For more details about this platform, please refer to the documentation at
-https://home-assistant.io/components/sensor.hue/
+Binary sensor for Hue motion sensors.
 """
 import asyncio
 import async_timeout
@@ -22,7 +19,7 @@ _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = timedelta(seconds=0.1)
 TYPE_GEOFENCE = "Geofence"
-ICONS = {"SML": "mdi:run", "RWL": "mdi:remote", "ZGP": "mdi:remote"}
+ICONS = {"SML": "mdi:run"}
 DEVICE_CLASSES = {"SML": "motion"}
 ATTRS = {
     "SML": [
@@ -36,11 +33,11 @@ ATTRS = {
         "on",
         "reachable",
         "sensitivity",
-        "threshold",
-        "threshold_offset",
+        "threshold_offset"
     ],
     "RWL": ["last_updated", "battery", "on", "reachable"],
     "ZGP": ["last_updated"],
+    ]
 }
 
 
@@ -51,13 +48,12 @@ def parse_hue_api_response(sensors):
     # Loop over all keys (1,2 etc) to identify sensors and get data.
     for sensor in sensors:
         modelid = sensor["modelid"][0:3]
-        if modelid in ["RWL", "SML", "ZGP"]:
+        if modelid == "SML":
             _key = modelid + "_" + sensor["uniqueid"][:-5]
-            if modelid == "SML":
-                if _key not in data_dict:
-                    data_dict[_key] = parse_sml(sensor)
-                else:
-                    data_dict[_key].update(parse_sml(sensor))
+            if _key not in data_dict:
+                data_dict[_key] = parse_sml(sensor)
+            else:
+                data_dict[_key].update(parse_sml(sensor))
 
     return data_dict
 

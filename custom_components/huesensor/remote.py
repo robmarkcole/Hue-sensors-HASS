@@ -1,8 +1,5 @@
 """
-Sensor for checking the status of Hue sensors.
-
-For more details about this platform, please refer to the documentation at
-https://home-assistant.io/components/sensor.hue/
+Hue remotes.
 """
 import asyncio
 import async_timeout
@@ -217,10 +214,7 @@ def parse_z3_switch(response):
     else:
         button = Z3_BUTTON[press]
 
-    data = {
-        "last_button_event": button,
-        "state": button
-    }
+    data = {"last_button_event": button, "state": button}
     return data
 
 
