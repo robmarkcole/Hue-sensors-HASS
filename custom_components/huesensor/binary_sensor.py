@@ -48,7 +48,7 @@ def parse_hue_api_response(sensors):
     # Loop over all keys (1,2 etc) to identify sensors and get data.
     for sensor in sensors:
         modelid = sensor["modelid"][0:3]
-        if modelid ="SML":
+        if modelid == "SML":
             _key = modelid + "_" + sensor["uniqueid"][:-5]
             if _key not in data_dict:
                 data_dict[_key] = parse_sml(sensor)
