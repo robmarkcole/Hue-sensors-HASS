@@ -33,6 +33,7 @@ ATTRS = {
         "on",
         "reachable",
         "sensitivity",
+        "threshold",
         "threshold_offset"
     ],
     "RWL": ["last_updated", "battery", "on", "reachable"],
