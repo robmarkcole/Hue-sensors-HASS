@@ -19,8 +19,8 @@ _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = timedelta(seconds=0.1)
 TYPE_GEOFENCE = "Geofence"
-ICONS = {"SML": "mdi:run"}
-DEVICE_CLASSES = {"SML": "motion"}
+
+DEVICE_CLASSES = {"SML": "motion","PHD": "light"}
 ATTRS = {
     "SML": [
         "light_level",
@@ -35,6 +35,19 @@ ATTRS = {
         "sensitivity",
         "threshold",
     ]
+    "PHD": [
+        "on",
+        "configured",
+        "sunrise_offset",
+        "sunset_offset",
+        "name",
+        "type",
+        "modelid",
+        "swversion",
+        "daylight",
+        "last_updated",
+    ]
+
 }
 
 
@@ -52,6 +65,12 @@ def parse_hue_api_response(sensors):
             else:
                 data_dict[_key].update(parse_sml(sensor))
 
+        elif modelid == "PHD":
+            _key = modelid
+            if _key not in data_dict:
+                data_dict[_key] = parse_phd(sensor)
+            else:
+                data_dict[_key].update(parse_phd(sensor))
     return data_dict
 
 
@@ -107,6 +126,50 @@ def parse_sml(response):
             "sensitivity": response["config"]["sensitivity"],
             "last_updated": response["state"]["lastupdated"].split("T"),
         }
+    return data
+
+def parse_phd(response):
+    """Parse the json for a PHD Daylight sensor and return the data."""
+    if response["type"] == "Daylight":
+        daylight = response["state"]["daylight"]
+        name_raw = response["name"]
+        name = "Hue " + name_raw
+
+        if daylight is True:
+            state = STATE_ON
+        else:
+            state = STATE_OFF
+        if daylight is not None:
+            data = {
+                "model": "PHD",
+                "state": state,
+                "on": response["config"]["on"],
+                "configured": response["config"]["configured"],
+                "sunrise_offset": response["config"]["sunriseoffset"],
+                "sunset_offset": response["config"]["sunsetoffset"],
+                "name": name,
+                "type": response["type"],
+                "modelid": response["modelid"],
+                "swversion": response["swversion"],
+                "daylight": daylight,
+                "last_updated": response["state"]["lastupdated"].split("T")
+            }
+        else:
+            data = {
+                "model": "PHD",
+                "state": "No Daylight data",
+                "on": None,
+                "configured": None,
+                "sunrise_offset": None,
+                "sunset_offset": None,
+                "name": None,
+                "type": None,
+                "modelid": None,
+                "swversion": None,
+                "daylight": "No Daylight data",
+                "last_updated": None
+            }
+
     return data
 
 
@@ -235,7 +298,7 @@ class HueSensor(BinarySensorDevice):
     def is_on(self):
         """Return the state of the sensor."""
         data = self._data.get(self._hue_id)
-        if data and data["model"] == "SML" and data["changed"]:
+        if data and data["model"] in ["SML","PHD"] and data["changed"]:
             return data["state"] == STATE_ON
         return False
 
