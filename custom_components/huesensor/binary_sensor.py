@@ -37,7 +37,7 @@ ATTRS = {
         "reachable",
         "sensitivity",
         "threshold",
-        "tholdoffset",
+        "threshold_offset",
     ],
     "RWL": ["last_updated", "battery", "on", "reachable"],
     "ZGP": ["last_updated"],
@@ -67,6 +67,7 @@ def parse_sml(response):
     if response["type"] == "ZLLLightLevel":
         lightlevel = response["state"].get("lightlevel")
         tholddark = response["config"].get("tholddark")
+        tholdoffset = response["config"].get("tholdoffset")
         if lightlevel is not None:
             lx = round(float(10 ** ((lightlevel - 1) / 10000)), 2)
             dark = response["state"]["dark"]
@@ -77,7 +78,7 @@ def parse_sml(response):
                 "dark": dark,
                 "daylight": daylight,
                 "threshold": tholddark,
-                "tholdoffset": tholdoffset,
+                "threshold_offset": tholdoffset
             }
         else:
             data = {
@@ -86,7 +87,7 @@ def parse_sml(response):
                 "dark": None,
                 "daylight": None,
                 "threshold": tholddark,
-                "tholdoffset": None,
+                "threshold_offset": None
             }
 
     elif response["type"] == "ZLLTemperature":
