@@ -19,7 +19,7 @@ _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = timedelta(seconds=0.1)
 TYPE_GEOFENCE = "Geofence"
-ICONS = {"SML": "mdi:run", "RWL": "mdi:remote", "ZGP": "mdi:remote"}
+ICONS = {"SML": "mdi:run"}
 DEVICE_CLASSES = {"SML": "motion"}
 ATTRS = {
     "SML": [
