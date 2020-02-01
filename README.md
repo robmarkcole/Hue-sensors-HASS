@@ -1,7 +1,6 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 [![Sponsor](https://img.shields.io/badge/sponsor-%F0%9F%92%96-green)](https://github.com/sponsors/robmarkcole)
 
-
 # Hue-sensors-HASS
 [FOR COMMUNITY SUPPORT PLEASE USE THIS THREAD](https://community.home-assistant.io/t/hue-motion-sensors-remotes-custom-component)
 
@@ -82,6 +81,9 @@ If you get an error when using this component, the procedure for debugging is as
 There are a couple of examples of this process in the debugging_issues folder.
 
 ## Contributors
+
+Please format code usign [Black](https://github.com/psf/black) before opening a pull request.
+
 A big thanks to [@yottatsa](https://github.com/yottatsa) for his many contributions to this work, check out his profile!
 
 ## ✨ Support this work
