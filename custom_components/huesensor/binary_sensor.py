@@ -79,7 +79,7 @@ def parse_sml(response):
                 "lx": None,
                 "dark": None,
                 "daylight": None,
-                "threshold_dark": tholddark,
+                "threshold_dark": None,
                 "threshold_offset": None
             }
 
