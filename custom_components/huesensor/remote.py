@@ -26,6 +26,7 @@ _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = timedelta(seconds=0.1)
 TYPE_GEOFENCE = "Geofence"
+HASS_BUTTON_EVENT = "huesensor.button_event"
 ICONS = {
     "RWL": "mdi:remote",
     "ROM": "mdi:remote",
@@ -291,7 +292,17 @@ class HueRemoteData(object):
             self.sensors.update(new_entities)
             self.async_add_entities(new_entities.values(), True)
         for entity_id in updated_sensors:
+            #schedule state update on the hass entity
             self.sensors[entity_id].async_schedule_update_ha_state()
+            # Fire event on the hass event bus
+            self.hass.bus.async_fire(
+                HASS_BUTTON_EVENT,
+                {
+                    "hue_id": self.sensors[entity_id].unique_id,
+                    "entity_id": self.sensors[entity_id].entity_id,
+                    "button_event": self.data[entity_id]["state"]
+                }
+            )
 
     async def async_update_info(self, now=None):
         """Get the bridge info."""
