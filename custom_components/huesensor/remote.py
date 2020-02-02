@@ -6,11 +6,13 @@ import async_timeout
 import logging
 import threading
 from datetime import timedelta
+import voluptuous as vol
 
 from homeassistant.components.remote import (
     PLATFORM_SCHEMA,
     RemoteDevice,
 )
+from homeassistant.core import callback
 from homeassistant.helpers.entity import (
     Entity,
     ToggleEntity,
@@ -24,7 +26,7 @@ DEPENDENCIES = ["hue"]
 
 _LOGGER = logging.getLogger(__name__)
 
-SCAN_INTERVAL = timedelta(seconds=0.1)
+DEFAULT_SCAN_INTERVAL = timedelta(seconds=0.1)
 TYPE_GEOFENCE = "Geofence"
 HASS_BUTTON_EVENT = "huesensor.button_event"
 ICONS = {
@@ -34,7 +36,6 @@ ICONS = {
     "FOH": "mdi:light-switch",
     "Z3-": "mdi:light-switch",
 }
-DEVICE_CLASSES = {"SML": "motion"}
 ATTRS = {
     "RWL": ["last_updated", "last_button_event", "battery", "on", "reachable"],
     "ROM": ["last_updated", "last_button_event", "battery", "on", "reachable"],
@@ -65,8 +66,9 @@ def parse_hue_api_response(sensors):
             if modelid == "RWL" or modelid == "ROM":
                 data_dict[_key] = parse_rwl(sensor)
 
-        elif modelid in ["FOH", "ZGP"]:  ############# New Model ID
-            _key = modelid + "_" + sensor["uniqueid"][-14:-3]  ###needed for uniqueness
+        elif modelid in ["FOH", "ZGP"]:  # New Model ID
+            # needed for uniqueness
+            _key = modelid + "_" + sensor["uniqueid"][-14:-3]
             if modelid == "FOH":
                 data_dict[_key] = parse_foh(sensor)
             elif modelid == "ZGP":
@@ -74,7 +76,7 @@ def parse_hue_api_response(sensors):
 
         elif (
             modelid == "Z3-"
-        ):  #### Newest Model ID / Lutron Aurora / Hue Bridge treats it as two sensors, I wanted them combined
+        ):  # Newest Model ID / Lutron Aurora / Hue Bridge treats it as two sensors, I wanted them combined
             if sensor["type"] == "ZLLRelativeRotary":  # Rotary Dial
                 _key = (
                     modelid + "_" + sensor["uniqueid"][:-5]
@@ -84,7 +86,7 @@ def parse_hue_api_response(sensors):
                 _key = modelid + "_" + sensor["uniqueid"]
                 key_value = parse_z3_switch(sensor)
 
-            ##Combine parsed data
+            # Combine parsed data
             if _key in data_dict:
                 data_dict[_key].update(key_value)
             else:
@@ -119,7 +121,8 @@ def parse_rwl(response):
         I know it should be _released not _up
         but _hold_up is too good to miss isn't it
     """
-    responsecodes = {"0": "_click", "1": "_hold", "2": "_click_up", "3": "_hold_up"}
+    responsecodes = {"0": "_click", "1": "_hold",
+                     "2": "_click_up", "3": "_hold_up"}
 
     button = None
     if response["state"]["buttonevent"]:
@@ -245,7 +248,28 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     """Initialise Hue Bridge connection."""
     data = HueRemoteData(hass, async_add_entities)
     await data.async_update_info()
-    async_track_time_interval(hass, data.async_update_info, SCAN_INTERVAL)
+
+    # start polling for updates on the bridge at the default scan interval
+    remove_listener = async_track_time_interval(
+        hass, data.async_update_info, DEFAULT_SCAN_INTERVAL)
+
+    # register service to change the polling interval
+    # TODO: The whole polling should be moved one level up at integration level
+    @callback
+    def set_polling_interval(service):
+        """Adjust the polling interval on the bridge."""
+        nonlocal remove_listener
+        remove_listener()
+        interval = service.data["interval"]
+        remove_listener = async_track_time_interval(
+            hass, data.async_update_info, timedelta(seconds=interval))
+
+    hass.services.async_register(
+        "huesensor",
+        "set_polling_interval",
+        set_polling_interval,
+        schema=vol.Schema({
+            vol.Required("interval", default=0.1): vol.Coerce(float)}))
 
 
 class HueRemoteData(object):
@@ -292,7 +316,7 @@ class HueRemoteData(object):
             self.sensors.update(new_entities)
             self.async_add_entities(new_entities.values(), True)
         for entity_id in updated_sensors:
-            #schedule state update on the hass entity
+            # schedule state update on the hass entity
             self.sensors[entity_id].async_schedule_update_ha_state()
             # Fire event on the hass event bus
             self.hass.bus.async_fire(
@@ -365,15 +389,6 @@ class HueRemote(RemoteDevice):
             if icon:
                 return icon
         return self.ICON
-
-    @property
-    def device_class(self):
-        """Return the class of this device, from component DEVICE_CLASSES."""
-        data = self._data.get(self._hue_id)
-        if data:
-            device_class = DEVICE_CLASSES.get(data["model"])
-            if device_class:
-                return device_class
 
     @property
     def device_state_attributes(self):

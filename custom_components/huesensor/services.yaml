@@ -1,0 +1,8 @@
+# Describes the format for available services
+
+set_polling_interval:
+  description: Change the interval of the continuous polling of the Hue bridge.
+  fields:
+    interval:
+      description: The interval in seconds.
+      example: 0.1
