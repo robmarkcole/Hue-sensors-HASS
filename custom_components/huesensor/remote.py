@@ -192,7 +192,6 @@ def parse_z3_rotary(response):
         "battery": response["config"]["battery"],
         "on": response["config"]["on"],
         "reachable": response["config"]["reachable"],
-        "last_button_event": button,
         "last_updated": response["state"]["lastupdated"].split("T"),
     }
     return data
@@ -273,16 +272,15 @@ class HueRemoteData(object):
         new_sensors = data.keys() - self.data.keys()
         updated_sensors = []
         for key, new in data.items():
-            new["changed"] = True
             old = self.data.get(key)
             if not old or old == new:
                 continue
-            updated_sensors.append(key)
             if (
                 old["last_updated"] == new["last_updated"]
                 and old["state"] == new["state"]
             ):
-                new["changed"] = False
+                continue
+            updated_sensors.append(key)
         self.data.update(data)
 
         new_entities = {
@@ -376,7 +374,7 @@ class HueRemote(RemoteDevice):
     @property
     def force_update(self):
         """Force update."""
-        return False
+        return True
 
     def turn_on(self, **kwargs):
         """Do nothing."""
