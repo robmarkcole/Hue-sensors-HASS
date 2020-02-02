@@ -19,7 +19,6 @@ _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = timedelta(seconds=0.1)
 TYPE_GEOFENCE = "Geofence"
-ICONS = {"SML": "mdi:run"}
 DEVICE_CLASSES = {"SML": "motion"}
 ATTRS = {
     "SML": [
@@ -33,7 +32,8 @@ ATTRS = {
         "on",
         "reachable",
         "sensitivity",
-        "threshold",
+        "threshold_dark",
+        "threshold_offset"
     ]
 }
 
@@ -58,8 +58,9 @@ def parse_hue_api_response(sensors):
 def parse_sml(response):
     """Parse the json for a SML Hue motion sensor and return the data."""
     if response["type"] == "ZLLLightLevel":
-        lightlevel = response["state"].get("lightlevel")
-        tholddark = response["config"].get("tholddark")
+        lightlevel = response["state"]["lightlevel"]
+        tholddark = response["config"]["tholddark"]
+        tholdoffset = response["config"]["tholdoffset"]
         if lightlevel is not None:
             lx = round(float(10 ** ((lightlevel - 1) / 10000)), 2)
             dark = response["state"]["dark"]
@@ -69,7 +70,8 @@ def parse_sml(response):
                 "lx": lx,
                 "dark": dark,
                 "daylight": daylight,
-                "threshold": tholddark,
+                "threshold_dark": tholddark,
+                "threshold_offset": tholdoffset
             }
         else:
             data = {
@@ -77,7 +79,8 @@ def parse_sml(response):
                 "lx": None,
                 "dark": None,
                 "daylight": None,
-                "threshold": tholddark,
+                "threshold_dark": None,
+                "threshold_offset": None
             }
 
     elif response["type"] == "ZLLTemperature":
