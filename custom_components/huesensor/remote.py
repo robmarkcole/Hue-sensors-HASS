@@ -15,7 +15,7 @@ from homeassistant.helpers.entity import (
     Entity,
     ToggleEntity,
 )
-from homeassistant.const import STATE_OFF
+#from homeassistant.const import STATE_OFF # no longer needed since button4: return STATE_OFF is taken out
 
 from homeassistant.helpers.event import async_track_time_interval
 
@@ -25,7 +25,7 @@ DEPENDENCIES = ["hue"]
 _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = timedelta(seconds=0.1)
-TYPE_GEOFENCE = "Geofence"
+#TYPE_GEOFENCE = "Geofence" # is this still necessary (works without it locally, and geofence is for device_tracker only?)
 ICONS = {
     "RWL": "mdi:remote",
     "ROM": "mdi:remote",
@@ -33,7 +33,7 @@ ICONS = {
     "FOH": "mdi:light-switch",
     "Z3-": "mdi:light-switch",
 }
-DEVICE_CLASSES = {"SML": "motion"}
+#DEVICE_CLASSES = {"SML": "motion"} this is for Motion sensors in binary_sensor.py
 ATTRS = {
     "RWL": ["last_updated", "last_button_event", "battery", "on", "reachable"],
     "ROM": ["last_updated", "last_button_event", "battery", "on", "reachable"],
@@ -266,7 +266,7 @@ class HueRemoteData(object):
         data = parse_hue_api_response(
             sensor.raw
             for sensor in bridge.api.sensors.values()
-            if sensor.type != TYPE_GEOFENCE
+#            if sensor.type != TYPE_GEOFENCE #is this still necessary??
         )
 
         new_sensors = data.keys() - self.data.keys()
@@ -315,7 +315,7 @@ class HueRemoteData(object):
 class HueRemote(RemoteDevice):
     """Class to hold Hue Remote basic info."""
 
-    ICON = "mdi:remote"
+#    ICON = "mdi:remote" icons are set below in def icon(self) ?
 
     def __init__(self, hue_id, data):
         """Initialize the remote object."""
@@ -329,19 +329,19 @@ class HueRemote(RemoteDevice):
 
     @property
     def name(self):
-        """Return the name of the sensor."""
+        """Return the name of the remote."""
         data = self._data.get(self._hue_id)
         if data:
             return data["name"]
 
     @property
     def unique_id(self):
-        """Return the ID of this Hue sensor."""
+        """Return the ID of this Hue remote."""
         return self._hue_id
 
     @property
     def state(self):
-        """Return the state of the sensor."""
+        """Return the state of the remote."""
         data = self._data.get(self._hue_id)
         return data["state"]
 
@@ -355,14 +355,15 @@ class HueRemote(RemoteDevice):
                 return icon
         return self.ICON
 
-    @property
-    def device_class(self):
-        """Return the class of this device, from component DEVICE_CLASSES."""
-        data = self._data.get(self._hue_id)
-        if data:
-            device_class = DEVICE_CLASSES.get(data["model"])
-            if device_class:
-                return device_class
+# device_class can be taken out since this is about remotes, and no device_class remote is available?
+#    @property 
+#    def device_class(self):
+#        """Return the class of this device, from component DEVICE_CLASSES."""
+#        data = self._data.get(self._hue_id)
+#        if data:
+#            device_class = DEVICE_CLASSES.get(data["model"])
+#            if device_class:
+#                return device_class
 
     @property
     def device_state_attributes(self):
