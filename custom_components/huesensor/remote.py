@@ -9,17 +9,16 @@ from datetime import timedelta
 
 from homeassistant.components.remote import (
     PLATFORM_SCHEMA,
-    RemoteDevice,
+    RemoteDevice
 )
 from homeassistant.helpers.entity import (
     Entity,
-    ToggleEntity,
+    ToggleEntity
 )
 
 from homeassistant.helpers.event import async_track_time_interval
 
 DEPENDENCIES = ["hue"]
-
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -30,7 +29,7 @@ ICONS = {
     "ROM": "mdi:remote",
     "ZGP": "mdi:remote",
     "FOH": "mdi:light-switch",
-    "Z3-": "mdi:light-switch",
+    "Z3-": "mdi:light-switch"
 }
 
 ATTRS = {
@@ -46,8 +45,8 @@ ATTRS = {
         "reachable",
         "dial_state",
         "dial_position",
-        "software_update",
-    ],
+        "software_update"
+    ]
 }
 
 
@@ -104,7 +103,7 @@ def parse_zgp(response):
         "name": response["name"],
         "state": button,
         "last_button_event": button,
-        "last_updated": response["state"]["lastupdated"].split("T"),
+        "last_updated": response["state"]["lastupdated"].split("T")
     }
     return data
 
@@ -131,7 +130,7 @@ def parse_rwl(response):
         "on": response["config"]["on"],
         "reachable": response["config"]["reachable"],
         "last_button_event": button,
-        "last_updated": response["state"]["lastupdated"].split("T"),
+        "last_updated": response["state"]["lastupdated"].split("T")
     }
     return data
 
@@ -150,7 +149,7 @@ def parse_foh(response):
         100: "double_upper_press",
         101: "double_upper_release",
         98: "double_lower_press",
-        99: "double_lower_release",
+        99: "double_lower_release"
     }
 
     press = response["state"]["buttonevent"]
@@ -164,7 +163,7 @@ def parse_foh(response):
         "name": response["name"],
         "state": button,
         "last_button_event": button,
-        "last_updated": response["state"]["lastupdated"].split("T"),
+        "last_updated": response["state"]["lastupdated"].split("T")
     }
     return data
 
@@ -190,7 +189,7 @@ def parse_z3_rotary(response):
         "battery": response["config"]["battery"],
         "on": response["config"]["on"],
         "reachable": response["config"]["reachable"],
-        "last_updated": response["state"]["lastupdated"].split("T"),
+        "last_updated": response["state"]["lastupdated"].split("T")
     }
     return data
 
@@ -202,7 +201,7 @@ def parse_z3_switch(response):
         1000: "initial_press",
         1001: "repeat",
         1002: "short_release",
-        1003: "long_release",
+        1003: "long_release"
     }
 
     press = response["state"]["buttonevent"]
