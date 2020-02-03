@@ -12,7 +12,7 @@ from homeassistant.components.device_tracker.const import (
     ATTR_ATTRIBUTES,
     CONF_SCAN_INTERVAL,
     DOMAIN,
-    ENTITY_ID_FORMAT,
+    ENTITY_ID_FORMAT
 )
 from homeassistant.components.device_tracker.legacy import DeviceScanner
 from homeassistant.const import (
@@ -20,7 +20,7 @@ from homeassistant.const import (
     ATTR_LATITUDE,
     ATTR_LONGITUDE,
     STATE_HOME,
-    STATE_NOT_HOME,
+    STATE_NOT_HOME
 )
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import slugify
@@ -87,8 +87,8 @@ class HueDeviceScanner(DeviceScanner):
             "host_name": sensor.name,
             "attributes": {
                 "last_updated": dt_util.as_local(dt_util.parse_datetime(last_updated)),
-                "unique_id": sensor.uniqueid,
-            },
+                "unique_id": sensor.uniqueid
+            }
         }
 
         if sensor.state.get("presence"):
@@ -97,7 +97,7 @@ class HueDeviceScanner(DeviceScanner):
             if zone_home:
                 kwargs["gps"] = [
                     zone_home.attributes[ATTR_LATITUDE],
-                    zone_home.attributes[ATTR_LONGITUDE],
+                    zone_home.attributes[ATTR_LONGITUDE]
                 ]
                 kwargs[ATTR_GPS_ACCURACY] = 0
         else:
@@ -107,7 +107,7 @@ class HueDeviceScanner(DeviceScanner):
             "Hue Geofence %s: %s (%s)",
             sensor.name,
             kwargs["location_name"],
-            kwargs["attributes"],
+            kwargs["attributes"]
         )
 
         result = await self.async_see(**kwargs)
