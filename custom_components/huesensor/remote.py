@@ -15,7 +15,6 @@ from homeassistant.helpers.entity import (
     Entity,
     ToggleEntity,
 )
-from homeassistant.const import STATE_OFF
 
 from homeassistant.helpers.event import async_track_time_interval
 
@@ -25,7 +24,7 @@ DEPENDENCIES = ["hue"]
 _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = timedelta(seconds=0.1)
-TYPE_GEOFENCE = "Geofence"
+
 ICONS = {
     "RWL": "mdi:remote",
     "ROM": "mdi:remote",
@@ -33,7 +32,7 @@ ICONS = {
     "FOH": "mdi:light-switch",
     "Z3-": "mdi:light-switch",
 }
-DEVICE_CLASSES = {"SML": "motion"}
+
 ATTRS = {
     "RWL": ["last_updated", "last_button_event", "battery", "on", "reachable"],
     "ROM": ["last_updated", "last_button_event", "battery", "on", "reachable"],
@@ -73,24 +72,23 @@ def parse_hue_api_response(sensors):
 
         elif (
             modelid == "Z3-"
-        ):  #### Newest Model ID / Lutron Aurora / Hue Bridge treats it as two sensors, I wanted them combined
+        ):  # Newest Model ID / Lutron Aurora / Hue Bridge treats it as two sensors, I wanted them combined
             if sensor["type"] == "ZLLRelativeRotary":  # Rotary Dial
                 _key = (
                     modelid + "_" + sensor["uniqueid"][:-5]
                 )  # Rotary key is substring of button
                 key_value = parse_z3_rotary(sensor)
-            else:  # sensor["type"] == "ZLLSwitch"
+            else:
                 _key = modelid + "_" + sensor["uniqueid"]
                 key_value = parse_z3_switch(sensor)
 
-            ##Combine parsed data
+            # Combine parsed data
             if _key in data_dict:
                 data_dict[_key].update(key_value)
             else:
                 data_dict[_key] = key_value
 
     return data_dict
-
 
 def parse_zgp(response):
     """Parse the json response for a ZGPSWITCH Hue Tap."""
@@ -266,7 +264,6 @@ class HueRemoteData(object):
         data = parse_hue_api_response(
             sensor.raw
             for sensor in bridge.api.sensors.values()
-            if sensor.type != TYPE_GEOFENCE
         )
 
         new_sensors = data.keys() - self.data.keys()
@@ -315,8 +312,6 @@ class HueRemoteData(object):
 class HueRemote(RemoteDevice):
     """Class to hold Hue Remote basic info."""
 
-    ICON = "mdi:remote"
-
     def __init__(self, hue_id, data):
         """Initialize the remote object."""
         self._hue_id = hue_id
@@ -329,19 +324,19 @@ class HueRemote(RemoteDevice):
 
     @property
     def name(self):
-        """Return the name of the sensor."""
+        """Return the name of the remote."""
         data = self._data.get(self._hue_id)
         if data:
             return data["name"]
 
     @property
     def unique_id(self):
-        """Return the ID of this Hue sensor."""
+        """Return the ID of this Hue remote."""
         return self._hue_id
 
     @property
     def state(self):
-        """Return the state of the sensor."""
+        """Return the state of the remote."""
         data = self._data.get(self._hue_id)
         return data["state"]
 
@@ -354,15 +349,6 @@ class HueRemote(RemoteDevice):
             if icon:
                 return icon
         return self.ICON
-
-    @property
-    def device_class(self):
-        """Return the class of this device, from component DEVICE_CLASSES."""
-        data = self._data.get(self._hue_id)
-        if data:
-            device_class = DEVICE_CLASSES.get(data["model"])
-            if device_class:
-                return device_class
 
     @property
     def device_state_attributes(self):
