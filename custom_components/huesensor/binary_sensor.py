@@ -14,7 +14,6 @@ from homeassistant.helpers.event import async_track_time_interval
 
 DEPENDENCIES = ["hue"]
 
-
 _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = timedelta(seconds=0.1)
@@ -108,7 +107,7 @@ def parse_sml(response):
             "on": response["config"]["on"],
             "reachable": response["config"]["reachable"],
             "sensitivity": response["config"]["sensitivity"],
-            "last_updated": response["state"]["lastupdated"].split("T"),
+            "last_updated": response["state"]["lastupdated"].split("T")
         }
     return data
 
