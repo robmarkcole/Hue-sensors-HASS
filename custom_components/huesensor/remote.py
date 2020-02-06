@@ -90,6 +90,7 @@ def parse_hue_api_response(sensors):
 
     return data_dict
 
+
 def parse_zgp(response):
     """Parse the json response for a ZGPSWITCH Hue Tap."""
     TAP_BUTTONS = {34: "1_click", 16: "2_click", 17: "3_click", 18: "4_click"}
@@ -262,8 +263,7 @@ class HueRemoteData(object):
             return
 
         data = parse_hue_api_response(
-            sensor.raw
-            for sensor in bridge.api.sensors.values()
+            sensor.raw for sensor in bridge.api.sensors.values()
         )
 
         new_sensors = data.keys() - self.data.keys()
