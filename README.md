@@ -85,7 +85,7 @@ There are a couple of examples of this process in the debugging_issues folder.
 * Create venv -> `$ python3 -m venv venv`
 * Use venv -> `$ source venv/bin/activate`
 * Install requirements -> `$ pip install -r requirements.txt` & `$ pip install -r requirements-dev.txt`
-* Run tests -> `$ venv/bin/py.test --cov=custom_components tests/`
+* Run tests -> `$ venv/bin/py.test --cov=custom_components tests/ -vv -p no:warnings`
 * Black format -> `$ venv/bin/black custom_components/*` (or setup VScode for format on save)
 
 ## Contributors
