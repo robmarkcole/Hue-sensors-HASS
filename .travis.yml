@@ -1,0 +1,16 @@
+language: python
+# sudo false implies containerized builds
+#sudo: false
+python:
+ - "3.7"
+before_install:
+    - pip install pytest pytest-cov
+    - pip install coveralls
+install:
+    - pip install -r requirements.txt
+    - pip install -r requirements-dev.txt
+# command to run tests
+script:
+    - py.test --cov=custom_components tests/ -vv -p no:warnings
+after_success:
+    - coveralls
