@@ -35,7 +35,7 @@ ATTRS = {
         "sensitivity",
         "threshold_dark",
         "threshold_offset"
-    ]
+    ],
     "PHD": [
         "on",
         "configured",
@@ -52,7 +52,7 @@ ATTRS = {
 }
 
 
-def parse_hue_api_response(sensors):
+def parse_hue_api_response(bridgeid, sensors):
     """Take in the Hue API json response."""
     data_dict = {}  # The list of sensors, referenced by their hue_id.
 
@@ -67,7 +67,7 @@ def parse_hue_api_response(sensors):
                 data_dict[_key].update(parse_sml(sensor))
 
         elif modelid == "PHD":
-            _key = modelid
+            _key = modelid + "_" + bridgeid
             if _key not in data_dict:
                 data_dict[_key] = parse_phd(sensor)
             else:
@@ -224,9 +224,9 @@ class HueSensorData(object):
             return
 
         data = parse_hue_api_response(
-            sensor.raw
+            bridge.api.id, (sensor.raw
             for sensor in bridge.api.sensors.values()
-            if sensor.type != TYPE_GEOFENCE
+            if sensor.type != TYPE_GEOFENCE)
         )
 
         new_sensors = data.keys() - self.data.keys()
