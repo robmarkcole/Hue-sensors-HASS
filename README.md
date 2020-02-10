@@ -1,5 +1,6 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 [![build status](http://img.shields.io/travis/robmarkcole/Hue-sensors-HASS/master.svg?style=flat)](https://travis-ci.org/robmarkcole/Hue-sensors-HASS)
+[![Coverage](https://codecov.io/github/robmarkcole/Hue-sensors-HASS/coverage.svg?branch=master)](https://codecov.io/gh/robmarkcole/Hue-sensors-HASS)
 [![Sponsor](https://img.shields.io/badge/sponsor-%F0%9F%92%96-green)](https://github.com/sponsors/robmarkcole)
 
 # Hue-sensors-HASS
