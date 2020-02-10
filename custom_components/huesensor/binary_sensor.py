@@ -47,7 +47,6 @@ ATTRS = {
         "swversion",
         "daylight",
         "last_updated",
-        "threshold_offset",
     ]
 
 }
