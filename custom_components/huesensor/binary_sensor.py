@@ -72,6 +72,7 @@ def parse_hue_api_response(bridgeid, sensors):
                 data_dict[_key] = parse_phd(sensor)
             else:
                 data_dict[_key].update(parse_phd(sensor))
+
     return data_dict
 
 
