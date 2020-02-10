@@ -14,3 +14,4 @@ script:
     - py.test --cov=custom_components tests/ -vv -p no:warnings
 after_success:
     - coveralls
+    - codecov
