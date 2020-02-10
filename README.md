@@ -1,4 +1,6 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
+[![build status](http://img.shields.io/travis/robmarkcole/Hue-sensors-HASS/master.svg?style=flat)](https://travis-ci.org/robmarkcole/Hue-sensors-HASS)
+[![Coverage](https://codecov.io/github/robmarkcole/Hue-sensors-HASS/coverage.svg?branch=master)](https://codecov.io/gh/robmarkcole/Hue-sensors-HASS)
 [![Sponsor](https://img.shields.io/badge/sponsor-%F0%9F%92%96-green)](https://github.com/sponsors/robmarkcole)
 
 # Hue-sensors-HASS
@@ -79,6 +81,14 @@ If you get an error when using this component, the procedure for debugging is as
 3. Parse the json file using the [hue_sensors package](https://pypi.python.org/pypi/hue-sensors/1.2) and report the device ID (e.g. RWL_06-02) that is causing your issue.
 
 There are a couple of examples of this process in the debugging_issues folder.
+
+## Developers
+
+* Create venv -> `$ python3 -m venv venv`
+* Use venv -> `$ source venv/bin/activate`
+* Install requirements -> `$ pip install -r requirements.txt` & `$ pip install -r requirements-dev.txt`
+* Run tests -> `$ venv/bin/py.test --cov=custom_components tests/ -vv -p no:warnings`
+* Black format -> `$ venv/bin/black custom_components/*` (or setup VScode for format on save)
 
 ## Contributors
 

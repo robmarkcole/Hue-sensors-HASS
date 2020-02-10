@@ -1,0 +1,5 @@
+black
+pytest
+pytest-cov
+homeassistant==0.105.1
+codecov

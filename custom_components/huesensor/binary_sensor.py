@@ -47,6 +47,7 @@ ATTRS = {
         "swversion",
         "daylight",
         "last_updated",
+        "threshold_offset",
     ]
 
 }
@@ -91,7 +92,7 @@ def parse_sml(response):
                 "dark": dark,
                 "daylight": daylight,
                 "threshold_dark": tholddark,
-                "threshold_offset": tholdoffset
+                "threshold_offset": tholdoffset,
             }
         else:
             data = {
@@ -100,7 +101,7 @@ def parse_sml(response):
                 "dark": None,
                 "daylight": None,
                 "threshold_dark": None,
-                "threshold_offset": None
+                "threshold_offset": None,
             }
 
     elif response["type"] == "ZLLTemperature":
