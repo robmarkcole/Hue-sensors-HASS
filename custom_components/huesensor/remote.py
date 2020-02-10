@@ -212,7 +212,7 @@ def parse_z3_switch(response):
     else:
         button = Z3_BUTTON[press]
 
-    data = {"last_button_event": button, "state": button}
+    data = {"last_button_event": button, "state": button, "last_updated": response["state"]["lastupdated"].split("T")}
     return data
 
 
