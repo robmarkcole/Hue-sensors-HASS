@@ -79,6 +79,12 @@ MOCK_ZLLTemperature = {
     "capabilities": {"certified": True, "primary": False},
 }
 
+MOCK_PHDDaylight = {
+    "state":{"daylight":true,"lastupdated":"2020-02-10T07:36:00"},
+    "config":{"on":true,"configured":true,"sunriseoffset":30,"sunsetoffset":-30},
+    "name":"Daylight","type":"Daylight","modelid":"PHDL00","manufacturername":"Philips","swversion":"1.0"}
+}
+
 PARSED_ZLLPresence = {
     "battery": 58,
     "last_updated": ["2020-02-06", "07:28:08"],
@@ -101,8 +107,21 @@ PARSED_ZLLLightlevel = {
 
 PARSED_ZLLTemperature = {"temperature": 17.44}
 
+PARSED_PHDDaylight= {
+    "daylight": True,
+    "on":"true,
+    "configured":True,
+    "sunrise_offset":30,
+    "sunset_offset":-30},
+    "name":"Daylight",
+    "type":"Daylight",
+    "modelid":"PHDL00",
+    "swversion":"1.0",
+    "lastupdated":"2020-02-10T07:36:00",
+}
 
 def test_parse_sml():
     assert bs.parse_sml(MOCK_ZLLPresence) == PARSED_ZLLPresence
     assert bs.parse_sml(MOCK_ZLLLightlevel) == PARSED_ZLLLightlevel
     assert bs.parse_sml(MOCK_ZLLTemperature) == PARSED_ZLLTemperature
+    assert bs.parse_sml(MOCK_PHDDaylight) == PARSED_PHDDaylight
