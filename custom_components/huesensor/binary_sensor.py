@@ -12,6 +12,8 @@ from homeassistant.const import STATE_ON, STATE_OFF
 from homeassistant.components.binary_sensor import BinarySensorDevice
 from homeassistant.helpers.event import async_track_time_interval
 
+from . import get_bridges, update_api
+
 DEPENDENCIES = ["hue"]
 
 
@@ -111,29 +113,6 @@ def parse_sml(response):
             "last_updated": response["state"]["lastupdated"].split("T"),
         }
     return data
-
-
-def get_bridges(hass):
-    from homeassistant.components import hue
-    from homeassistant.components.hue.bridge import HueBridge
-
-    return [
-        entry
-        for entry in hass.data[hue.DOMAIN].values()
-        if isinstance(entry, HueBridge) and entry.api
-    ]
-
-
-async def update_api(api):
-    import aiohue
-
-    try:
-        with async_timeout.timeout(10):
-            await api.update()
-    except (asyncio.TimeoutError, aiohue.AiohueException) as err:
-        _LOGGER.debug("Failed to fetch sensors: %s", err)
-        return False
-    return True
 
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
