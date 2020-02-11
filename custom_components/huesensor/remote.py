@@ -112,11 +112,6 @@ def parse_zgp(response):
 
 def parse_rwl(response):
     """Parse the json response for a RWL Hue remote."""
-
-    """
-        I know it should be _released not _up
-        but _hold_up is too good to miss isn't it
-    """
     responsecodes = {"0": "_click", "1": "_hold", "2": "_click_up", "3": "_hold_up"}
 
     button = None
