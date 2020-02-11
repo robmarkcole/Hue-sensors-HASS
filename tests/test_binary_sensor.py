@@ -1,7 +1,6 @@
 """
 Tests for binary_sensor.py
 """
-import json
 import custom_components.huesensor.binary_sensor as bs
 
 MOCK_ZLLPresence = {
