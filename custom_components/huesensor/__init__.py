@@ -6,8 +6,6 @@ import async_timeout
 
 _LOGGER = logging.getLogger(__name__)
 
-DEPENDENCIES = ["hue"]
-
 
 def get_bridges(hass):
     from homeassistant.components import hue

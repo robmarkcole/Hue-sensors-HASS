@@ -14,8 +14,6 @@ from homeassistant.helpers.event import async_track_time_interval
 
 from . import get_bridges, update_api
 
-DEPENDENCIES = ["hue"]
-
 
 _LOGGER = logging.getLogger(__name__)
 

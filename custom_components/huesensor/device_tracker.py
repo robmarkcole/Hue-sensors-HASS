@@ -29,7 +29,6 @@ from homeassistant.util import slugify
 
 from . import get_bridges, update_api
 
-DEPENDENCIES = ["hue"]
 
 _LOGGER = logging.getLogger(__name__)
 
