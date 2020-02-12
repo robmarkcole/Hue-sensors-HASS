@@ -6,7 +6,9 @@ import logging
 from datetime import timedelta
 
 import async_timeout
+
 import homeassistant.util.dt as dt_util
+from homeassistant.components import zone
 from homeassistant.components.device_tracker import PLATFORM_SCHEMA
 from homeassistant.components.device_tracker.const import (
     ATTR_ATTRIBUTES,
@@ -24,7 +26,6 @@ from homeassistant.const import (
 )
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import slugify
-from homeassistant.components import zone
 
 from . import get_bridges, update_api
 

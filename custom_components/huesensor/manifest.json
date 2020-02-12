@@ -4,5 +4,5 @@
     "documentation": "https://github.com/robmarkcole/Hue-sensors-HASS",
     "requirements": [],
     "dependencies": ["hue"],
-    "codeowners": ["@robmarkcole"]
+    "codeowners": ["@robmarkcole"],
 }

@@ -2,20 +2,14 @@
 Hue remotes.
 """
 import asyncio
-import async_timeout
 import logging
 import threading
 from datetime import timedelta
 
-from homeassistant.components.remote import (
-    PLATFORM_SCHEMA,
-    RemoteDevice,
-)
-from homeassistant.helpers.entity import (
-    Entity,
-    ToggleEntity,
-)
+import async_timeout
 
+from homeassistant.components.remote import PLATFORM_SCHEMA, RemoteDevice
+from homeassistant.helpers.entity import Entity, ToggleEntity
 from homeassistant.helpers.event import async_track_time_interval
 
 from . import get_bridges, update_api
