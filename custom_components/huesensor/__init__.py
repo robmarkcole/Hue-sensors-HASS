@@ -1,6 +1,10 @@
 """The huesensors component."""
 import asyncio
+import logging
+
 import async_timeout
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def get_bridges(hass):

@@ -2,19 +2,18 @@
 Binary sensor for Hue motion sensors.
 """
 import asyncio
-import async_timeout
 import logging
 import threading
 from datetime import timedelta
 
-from homeassistant.components.sensor import PLATFORM_SCHEMA
-from homeassistant.const import STATE_ON, STATE_OFF
+import async_timeout
+
 from homeassistant.components.binary_sensor import BinarySensorDevice
+from homeassistant.components.sensor import PLATFORM_SCHEMA
+from homeassistant.const import STATE_OFF, STATE_ON
 from homeassistant.helpers.event import async_track_time_interval
 
 from . import get_bridges, update_api
-
-DEPENDENCIES = ["hue"]
 
 
 _LOGGER = logging.getLogger(__name__)
