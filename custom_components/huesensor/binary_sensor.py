@@ -18,7 +18,7 @@ from . import get_bridges, update_api
 
 _LOGGER = logging.getLogger(__name__)
 
-SCAN_INTERVAL = timedelta(seconds=0.1)
+SCAN_INTERVAL = timedelta(seconds=0.5)
 TYPE_GEOFENCE = "Geofence"
 DEVICE_CLASSES = {"SML": "motion"}
 ATTRS = {
