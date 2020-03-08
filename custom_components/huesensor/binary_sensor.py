@@ -6,8 +6,6 @@ import logging
 import threading
 from datetime import timedelta
 
-import async_timeout
-
 from homeassistant.components.binary_sensor import BinarySensorDevice
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.const import STATE_OFF, STATE_ON
