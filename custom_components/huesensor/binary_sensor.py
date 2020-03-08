@@ -8,7 +8,7 @@ from datetime import timedelta
 
 from homeassistant.components.binary_sensor import BinarySensorDevice
 from homeassistant.components.sensor import PLATFORM_SCHEMA
-from homeassistant.const import STATE_OFF, STATE_ON
+from homeassistant.const import CONF_SCAN_INTERVAL, STATE_OFF, STATE_ON
 from homeassistant.helpers.event import async_track_time_interval
 
 from . import get_bridges
@@ -16,7 +16,7 @@ from . import get_bridges
 
 _LOGGER = logging.getLogger(__name__)
 
-SCAN_INTERVAL = timedelta(seconds=0.5)
+DEFAULT_SCAN_INTERVAL = timedelta(seconds=0.5)
 TYPE_GEOFENCE = "Geofence"
 DEVICE_CLASSES = {"SML": "motion"}
 ATTRS = {
@@ -116,7 +116,11 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     """Initialise Hue Bridge connection."""
     data = HueSensorData(hass, async_add_entities)
     await data.async_update_info()
-    async_track_time_interval(hass, data.async_update_info, SCAN_INTERVAL)
+    async_track_time_interval(
+        hass,
+        data.async_update_info,
+        config.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
+    )
 
 
 class HueSensorData(object):

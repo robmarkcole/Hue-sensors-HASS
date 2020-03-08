@@ -6,6 +6,7 @@ import logging
 import threading
 from datetime import timedelta
 
+from homeassistant.const import CONF_SCAN_INTERVAL
 from homeassistant.components.hue import HueBridge
 from homeassistant.components.remote import PLATFORM_SCHEMA, RemoteDevice
 from homeassistant.helpers.entity import Entity, ToggleEntity
@@ -16,7 +17,7 @@ from . import get_bridges
 
 _LOGGER = logging.getLogger(__name__)
 
-SCAN_INTERVAL = timedelta(seconds=0.5)
+DEFAULT_SCAN_INTERVAL = timedelta(seconds=0.5)
 
 ICONS = {
     "RWL": "mdi:remote",
@@ -206,9 +207,15 @@ def parse_z3_switch(response):
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Initialise Hue Bridge connection."""
+    _LOGGER.warning(f"config: {config}")
+
     data = HueRemoteData(hass, async_add_entities)
     await data.async_update_info()
-    async_track_time_interval(hass, data.async_update_info, SCAN_INTERVAL)
+    async_track_time_interval(
+        hass,
+        data.async_update_info,
+        config.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
+    )
 
 
 class HueRemoteData(object):
@@ -247,7 +254,7 @@ class HueRemoteData(object):
             entity_id: HueRemote(entity_id, self) for entity_id in new_sensors
         }
         if new_entities:
-            _LOGGER.debug("Created %s", ", ".join(new_entities.keys()))
+            _LOGGER.warning("Created %s", ", ".join(new_entities.keys()))
             self.sensors.update(new_entities)
             self.async_add_entities(new_entities.values(), True)
         for entity_id in updated_sensors:
@@ -279,6 +286,25 @@ class HueRemote(RemoteDevice):
         """Initialize the remote object."""
         self._hue_id = hue_id
         self._data = data.data  # data is in .data
+
+    # async def async_added_to_hass(self):
+    #     """When entity is added to hass."""
+    #     self.bridge.sensor_manager.coordinator.async_add_listener(
+    #         self.async_write_ha_state
+    #     )
+    #
+    # async def async_will_remove_from_hass(self):
+    #     """When entity will be removed from hass."""
+    #     self.bridge.sensor_manager.coordinator.async_remove_listener(
+    #         self.async_write_ha_state
+    #     )
+    #
+    # async def async_update(self):
+    #     """Update the entity.
+    #
+    #     Only used by the generic entity update service.
+    #     """
+    #     await self.bridge.sensor_manager.coordinator.async_request_refresh()
 
     @property
     def should_poll(self):
