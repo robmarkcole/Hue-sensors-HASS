@@ -13,7 +13,7 @@ from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.const import STATE_OFF, STATE_ON
 from homeassistant.helpers.event import async_track_time_interval
 
-from . import get_bridges, update_api
+from . import get_bridges
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -133,9 +133,7 @@ class HueSensorData(object):
         self.async_add_entities = async_add_entities
 
     async def update_bridge(self, bridge):
-        available = await update_api(bridge.api.sensors)
-        if not available:
-            return
+        await bridge.sensor_manager.coordinator.async_request_refresh()
 
         data = parse_hue_api_response(
             sensor.raw

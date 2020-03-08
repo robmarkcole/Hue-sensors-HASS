@@ -1,25 +1,13 @@
 """The huesensors component."""
-import asyncio
-import async_timeout
+from typing import List
+
+from homeassistant.components.hue import DOMAIN as HUE_DOMAIN, HueBridge
 
 
-def get_bridges(hass):
-    from homeassistant.components import hue
-    from homeassistant.components.hue.bridge import HueBridge
-
+def get_bridges(hass) -> List[HueBridge]:
+    """Retrieve Hue bridges from loaded official Hue integration."""
     return [
         entry
-        for entry in hass.data[hue.DOMAIN].values()
+        for entry in hass.data[HUE_DOMAIN].values()
         if isinstance(entry, HueBridge) and entry.api
     ]
-
-
-async def update_api(api):
-    import aiohue
-
-    try:
-        with async_timeout.timeout(10):
-            await api.update()
-    except (asyncio.TimeoutError, aiohue.AiohueException) as err:
-        return False
-    return True
