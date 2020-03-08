@@ -1,1 +1,2 @@
-aiohue==1.5.0
+aiohue==2.0.0
+attrs==19.3.0

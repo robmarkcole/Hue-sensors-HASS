@@ -6,13 +6,12 @@ import logging
 import threading
 from datetime import timedelta
 
-import async_timeout
-
+from homeassistant.components.hue import HueBridge
 from homeassistant.components.remote import PLATFORM_SCHEMA, RemoteDevice
 from homeassistant.helpers.entity import Entity, ToggleEntity
 from homeassistant.helpers.event import async_track_time_interval
 
-from . import get_bridges, update_api
+from . import get_bridges
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -223,10 +222,8 @@ class HueRemoteData(object):
         self.sensors = {}
         self.async_add_entities = async_add_entities
 
-    async def update_bridge(self, bridge):
-        available = await update_api(bridge.api.sensors)
-        if not available:
-            return
+    async def update_bridge(self, bridge: HueBridge):
+        await bridge.sensor_manager.coordinator.async_request_refresh()
 
         data = parse_hue_api_response(
             sensor.raw for sensor in bridge.api.sensors.values()
