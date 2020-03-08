@@ -1,5 +1,5 @@
 black
 pytest
 pytest-cov
-homeassistant==0.105.1
+homeassistant==0.106.4
 codecov
