@@ -166,7 +166,7 @@ class HueSensorData(object):
             self.sensors.update(new_entities)
             self.async_add_entities(new_entities.values(), True)
         for entity_id in updated_sensors:
-            self.sensors[entity_id].async_schedule_update_ha_state()
+            self.sensors[entity_id].async_write_ha_state()
 
     async def async_update_info(self, now=None):
         """Get the bridge info."""
