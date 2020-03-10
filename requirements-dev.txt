@@ -1,3 +1,4 @@
+asynctest
 black
 pytest
 pytest-cov
