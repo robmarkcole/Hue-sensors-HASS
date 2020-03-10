@@ -20,9 +20,9 @@ from .conftest import (
 )
 
 
-async def test_integration(mock_hass_double_bridge, caplog):
+async def test_integration(mock_hass_2_bridges, caplog):
     """Test setup with yaml config for remotes and binary sensors."""
-    mock_hass = mock_hass_double_bridge
+    mock_hass = mock_hass_2_bridges
     entity_counter = []
     config_remote = {"platform": DOMAIN, "scan_interval": timedelta(seconds=3)}
     config_bs = {"platform": DOMAIN, "scan_interval": timedelta(seconds=2)}
@@ -84,11 +84,11 @@ async def test_integration(mock_hass_double_bridge, caplog):
             assert len(caplog.messages) == 7
 
             # Change the state on bridge and call update
-            hue_bridge = mock_hass.data[HUE_DOMAIN][0]
-            r1_data_st = hue_bridge.api.sensors["rwl_1"].raw["state"]
+            hue_bridge = mock_hass.data[HUE_DOMAIN][1]
+            r1_data_st = hue_bridge.api.sensors["ZGPSwitch_1_0"].raw["state"]
             r1_data_st["buttonevent"] = 16
             r1_data_st["lastupdated"] = "2019-06-22T14:43:55"
-            hue_bridge.api.sensors["rwl_1"].raw["state"] = r1_data_st
+            hue_bridge.api.sensors["ZGPSwitch_1_0"].raw["state"] = r1_data_st
 
             assert data_coord_b1.async_request_refresh.call_count == 2
             assert data_coord_b2.async_request_refresh.call_count == 2

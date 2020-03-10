@@ -182,3 +182,16 @@ PARSED_Z3_ROTARY = {
     "reachable": True,
     "last_updated": ["2020-01-31", "15:56:19"],
 }
+
+# Hue geofences
+MOCK_GEOFENCE = {
+    "state": {"presence": False, "lastupdated": "2019-04-09T06:05:00"},
+    "config": {"on": True, "reachable": True},
+    "name": "iPhone",
+    "type": "Geofence",
+    "modelid": "HA_GEOFENCE",
+    "manufacturername": "1ISn0hwg7oDVAmx4-gqDTN4eRR3ncfRl",
+    "swversion": "A_1",
+    "uniqueid": "L_02_iL4n7",
+    "recycle": False,
+}

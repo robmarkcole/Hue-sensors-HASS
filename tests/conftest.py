@@ -11,6 +11,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 import pytest
 
 from .sensor_samples import (
+    MOCK_GEOFENCE,
     MOCK_ZGP,
     MOCK_ZLLPresence,
     MOCK_RWL,
@@ -21,7 +22,7 @@ DEV_ID_REMOTE_1 = "ZGP_00:44:23:08"
 DEV_ID_SENSOR_1 = "SML_00:17:88:01:02:00:af:28-02"
 
 
-class MockBridgeUpdater:
+class MockAsyncCounter:
     """
     Call counter for the hue data coordinator.
 
@@ -46,10 +47,15 @@ class MockBridgeUpdater:
         return self._counter
 
 
-def _mock_hue_sensor(raw_data: dict):
-    hue_sensor = MagicMock(spec=GenericSensor)
-    hue_sensor.raw = deepcopy(raw_data)
-    return hue_sensor
+def _make_mock_bridge(idx_bridge, *sensors):
+    bridge = MagicMock(spec=Bridge)
+    bridge.sensors = {
+        f"{raw_data['type']}_{idx_bridge}_{i}": GenericSensor(
+            raw_data["uniqueid"], deepcopy(raw_data), None
+        )
+        for i, raw_data in enumerate(sensors)
+    }
+    return bridge
 
 
 def _mock_hue_bridges(bridges):
@@ -57,7 +63,7 @@ def _mock_hue_bridges(bridges):
     hue_bridges = {}
     for i, bridge in enumerate(bridges):
         coordinator = MagicMock(spec=DataUpdateCoordinator)
-        coordinator.async_request_refresh = MockBridgeUpdater()
+        coordinator.async_request_refresh = MockAsyncCounter()
 
         sensor_manager = MagicMock(spec=SensorManager)
         sensor_manager.coordinator = coordinator
@@ -74,37 +80,28 @@ def _mock_hue_bridges(bridges):
 @pytest.fixture
 def mock_hass():
     """Mock HA object for tests, including some sensors in hue integration."""
-    bridge = MagicMock(spec=Bridge)
-    bridge.sensors = {
-        "rwl_1": _mock_hue_sensor(MOCK_ZGP),
-        "sml_1": _mock_hue_sensor(MOCK_ZLLPresence),
-    }
-
-    # mocking homeassistant
     hass = MagicMock(spec=HomeAssistant)
-    hass.data = {HUE_DOMAIN: _mock_hue_bridges([bridge])}
+    hass.data = {
+        HUE_DOMAIN: _mock_hue_bridges(
+            [_make_mock_bridge(0, MOCK_ZGP, MOCK_ZLLPresence)]
+        )
+    }
 
     return hass
 
 
 @pytest.fixture
-def mock_hass_double_bridge():
+def mock_hass_2_bridges():
     """Mock HA object for tests, with some sensors in 2 bridges."""
-    bridge1 = MagicMock(spec=Bridge)
-    bridge1.sensors = {
-        "rwl_1": _mock_hue_sensor(MOCK_ZGP),
-        "z3_2": _mock_hue_sensor(MOCK_Z3_ROTARY),
-    }
-
-    bridge2 = MagicMock(spec=Bridge)
-    bridge2.sensors = {
-        "rwl_2": _mock_hue_sensor(MOCK_RWL),
-        "sml_1": _mock_hue_sensor(MOCK_ZLLPresence),
-    }
-
-    # mocking homeassistant
     hass = MagicMock(spec=HomeAssistant)
-    hass.data = {HUE_DOMAIN: _mock_hue_bridges([bridge1, bridge2])}
+    hass.data = {
+        HUE_DOMAIN: _mock_hue_bridges(
+            [
+                _make_mock_bridge(0, MOCK_Z3_ROTARY, MOCK_ZLLPresence),
+                _make_mock_bridge(1, MOCK_ZGP, MOCK_RWL, MOCK_GEOFENCE),
+            ]
+        )
+    }
     hass.config = MagicMock()
     hass.states = MagicMock()
 
