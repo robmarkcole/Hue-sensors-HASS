@@ -2,7 +2,10 @@
 import logging
 
 from homeassistant.const import CONF_SCAN_INTERVAL
-from homeassistant.components.remote import PLATFORM_SCHEMA, RemoteDevice  # noqa: F401
+from homeassistant.components.remote import (  # noqa: F401
+    PLATFORM_SCHEMA,
+    RemoteDevice,
+)
 
 from . import DOMAIN
 from .data_manager import (

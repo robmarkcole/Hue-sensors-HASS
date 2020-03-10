@@ -51,7 +51,8 @@ class HueSensorData:
         for bridge in get_bridges(self.hass):
             await bridge.sensor_manager.coordinator.async_request_refresh()
             data = parse_hue_api_response(
-                sensor.raw for sensor in bridge.api.sensors.values()
+                sensor.raw
+                for sensor in bridge.api.sensors.values()
                 if sensor.raw["modelid"].startswith(_KNOWN_MODEL_IDS)
             )
             for dev_id, dev_data in data.items():
@@ -98,7 +99,6 @@ class HueSensorData:
                 return
 
             if self._update_listener is not None:
-                _LOGGER.debug(f"Cancelling time tracker")
                 self._update_listener()
                 self._update_listener = None
 
@@ -166,10 +166,7 @@ class HueSensorBaseDevice(Entity):
         # )
         await self._data_manager.async_start_scheduler()
         _LOGGER.debug(
-            "%s: setup complete for %s:%s",
-            self.entity_id,
-            self.__class__.__name__,
-            self._hue_id,
+            "Setup complete for %s:%s", self.__class__.__name__, self._hue_id
         )
 
     async def async_will_remove_from_hass(self):

@@ -51,7 +51,10 @@ FOH_BUTTONS = {
     99: "double_lower_release",
 }
 RWL_RESPONSE_CODES = {
-    "0": "_click", "1": "_hold", "2": "_click_up", "3": "_hold_up"
+    "0": "_click",
+    "1": "_hold",
+    "2": "_click_up",
+    "3": "_hold_up",
 }
 TAP_BUTTONS = {34: "1_click", 16: "2_click", 17: "3_click", 18: "4_click"}
 Z3_BUTTON = {
@@ -222,7 +225,9 @@ def _ident_raw_sensor(
     raw_sensor_data: Dict[str, Any]
 ) -> Tuple[Optional[str], Callable]:
     """Identify sensor types and return unique identifier and parser."""
-    def _default_parser(*x): return x
+
+    def _default_parser(*x):
+        return x
 
     model_id = raw_sensor_data["modelid"][0:3]
     unique_sensor_id = raw_sensor_data["uniqueid"]
