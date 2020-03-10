@@ -28,7 +28,6 @@ def get_bridges(hass) -> List[HueBridge]:
 
 
 class HueSensorData:
-    """Get the latest sensor data."""
     """Sensor data handler for this custom integration."""
 
     def __init__(self, hass):
@@ -159,7 +158,8 @@ class HueSensorBaseDevice(Entity):
         # )
         await self._data_manager.async_start_scheduler()
         _LOGGER.debug(
-            "%s: setup complete for %s:%s", self.entity_id,
+            "%s: setup complete for %s:%s",
+            self.entity_id,
             self.__class__.__name__,
             self._hue_id,
         )

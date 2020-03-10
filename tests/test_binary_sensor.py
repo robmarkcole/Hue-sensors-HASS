@@ -1,5 +1,12 @@
 """Tests for binary_sensor.py."""
-from custom_components.huesensor.hue_api_response import parse_sml
+import logging
+
+import pytest
+
+from custom_components.huesensor.hue_api_response import (
+    parse_hue_api_response,
+    parse_sml,
+)
 
 MOCK_ZLLPresence = {
     "state": {"presence": False, "lastupdated": "2020-02-06T07:28:08"},
@@ -24,7 +31,6 @@ MOCK_ZLLPresence = {
     "uniqueid": "00:17:88:01:02:00:af:28-02-0406",
     "capabilities": {"certified": True, "primary": True},
 }
-
 MOCK_ZLLLightlevel = {
     "state": {
         "lightlevel": 0,
@@ -53,7 +59,6 @@ MOCK_ZLLLightlevel = {
     "uniqueid": "00:17:88:01:02:00:af:28-02-0400",
     "capabilities": {"certified": True, "primary": False},
 }
-
 MOCK_ZLLTemperature = {
     "state": {"temperature": 1744, "lastupdated": "2020-02-06T07:26:26"},
     "swupdate": {"state": "noupdates", "lastinstall": "2019-05-06T13:14:45"},
@@ -86,7 +91,6 @@ PARSED_ZLLPresence = {
     "sensitivity": 2,
     "state": "off",
 }
-
 PARSED_ZLLLightlevel = {
     "dark": True,
     "daylight": False,
@@ -95,11 +99,40 @@ PARSED_ZLLLightlevel = {
     "threshold_dark": 16000,
     "threshold_offset": 7000,
 }
-
 PARSED_ZLLTemperature = {"temperature": 17.44}
 
 
-def test_parse_sml():
-    assert parse_sml(MOCK_ZLLPresence) == PARSED_ZLLPresence
-    assert parse_sml(MOCK_ZLLLightlevel) == PARSED_ZLLLightlevel
-    assert parse_sml(MOCK_ZLLTemperature) == PARSED_ZLLTemperature
+@pytest.mark.parametrize(
+    "raw_response, sensor_key, parsed_response, parser_func",
+    (
+        (
+            MOCK_ZLLPresence,
+            "SML_00:17:88:01:02:00:af:28-02",
+            PARSED_ZLLPresence,
+            parse_sml,
+        ),
+        (
+            MOCK_ZLLLightlevel,
+            "SML_00:17:88:01:02:00:af:28-02",
+            PARSED_ZLLLightlevel,
+            parse_sml,
+        ),
+        (
+            MOCK_ZLLTemperature,
+            "SML_00:17:88:01:02:00:af:28-02",
+            PARSED_ZLLTemperature,
+            parse_sml,
+        ),
+    ),
+)
+def test_parse_sensor_raw_data(
+    raw_response, sensor_key, parsed_response, parser_func, caplog
+):
+    """Test data parsers for known sensors."""
+    assert parser_func(raw_response) == parsed_response
+    with caplog.at_level(level=logging.WARNING):
+        assert (
+            parse_hue_api_response([raw_response]) 
+            == {sensor_key: parsed_response}
+        )
+        assert len(caplog.messages) == 0
