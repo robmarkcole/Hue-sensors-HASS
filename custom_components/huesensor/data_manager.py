@@ -48,8 +48,14 @@ class HueSensorData:
         self._update_listener = None
 
     async def _iter_data(self) -> AsyncIterable[Tuple[bool, str, str, dict]]:
-        for bridge in get_bridges(self.hass):
-            await bridge.sensor_manager.coordinator.async_request_refresh()
+        bridges = get_bridges(self.hass)
+        await asyncio.gather(
+            *[
+                bridge.sensor_manager.coordinator.async_request_refresh()
+                for bridge in bridges
+            ]
+        )
+        for bridge in bridges:
             data = parse_hue_api_response(
                 sensor.raw
                 for sensor in bridge.api.sensors.values()
