@@ -1,6 +1,6 @@
 """Hue API data parsing for sensors."""
 import logging
-from typing import Callable, Optional, Tuple
+from typing import Any, Callable, Iterable, Dict, Optional, Tuple
 
 from homeassistant.const import STATE_OFF, STATE_ON
 
@@ -63,7 +63,7 @@ Z3_BUTTON = {
 Z3_DIAL = {1: "begin", 2: "end"}
 
 
-def parse_sml(response):
+def parse_sml(response: Dict[str, Any]) -> Dict[str, Any]:
     """Parse the json for a SML Hue motion sensor and return the data."""
     data = {}
     if response["type"] == "ZLLLightLevel":
@@ -122,7 +122,7 @@ def parse_sml(response):
     return data
 
 
-def parse_zgp(response):
+def parse_zgp(response: Dict[str, Any]) -> Dict[str, Any]:
     """Parse the json response for a ZGPSWITCH Hue Tap."""
     press = response["state"]["buttonevent"]
     if press is None or press not in TAP_BUTTONS:
@@ -140,7 +140,7 @@ def parse_zgp(response):
     return data
 
 
-def parse_rwl(response):
+def parse_rwl(response: Dict[str, Any]) -> Dict[str, Any]:
     """Parse the json response for a RWL Hue remote."""
     button = None
     if response["state"]["buttonevent"]:
@@ -160,7 +160,7 @@ def parse_rwl(response):
     return data
 
 
-def parse_foh(response):
+def parse_foh(response: Dict[str, Any]) -> Dict[str, Any]:
     """Parse the JSON response for a FOHSWITCH (type still = ZGPSwitch)."""
     press = response["state"]["buttonevent"]
     if press is None or press not in FOH_BUTTONS:
@@ -178,7 +178,7 @@ def parse_foh(response):
     return data
 
 
-def parse_z3_rotary(response):
+def parse_z3_rotary(response: Dict[str, Any]) -> Dict[str, Any]:
     """Parse the json response for a Lutron Aurora Rotary Event."""
     turn = response["state"]["rotaryevent"]
     dial_position = response["state"]["expectedrotation"]
@@ -201,7 +201,7 @@ def parse_z3_rotary(response):
     return data
 
 
-def parse_z3_switch(response):
+def parse_z3_switch(response: Dict[str, Any]) -> Dict[str, Any]:
     """Parse the json response for a Lutron Aurora."""
     press = response["state"]["buttonevent"]
     logging.warning(press)
@@ -218,8 +218,11 @@ def parse_z3_switch(response):
     return data
 
 
-def _ident_raw_sensor(raw_sensor_data: dict) -> Tuple[Optional[str], Callable]:
+def _ident_raw_sensor(
+    raw_sensor_data: Dict[str, Any]
+) -> Tuple[Optional[str], Callable]:
     """Identify sensor types and return unique identifier and parser."""
+    def _default_parser(*x): return x
 
     model_id = raw_sensor_data["modelid"][0:3]
     unique_sensor_id = raw_sensor_data["uniqueid"]
@@ -252,10 +255,10 @@ def _ident_raw_sensor(raw_sensor_data: dict) -> Tuple[Optional[str], Callable]:
             sensor_key = model_id + "_" + unique_sensor_id
             return sensor_key, parse_z3_switch
 
-    return None, logging.warning
+    return None, _default_parser
 
 
-def parse_hue_api_response(sensors):
+def parse_hue_api_response(sensors: Iterable[Dict[str, Any]]):
     """Take in the Hue API json response."""
     data_dict = {}  # The list of sensors, referenced by their hue_id.
 
@@ -263,8 +266,6 @@ def parse_hue_api_response(sensors):
     for sensor in sensors:
         _key, _raw_parser = _ident_raw_sensor(sensor)
         if _key is None:
-            # Log unknown sensor data
-            _raw_parser(sensor)
             continue
 
         parsed_sensor = _raw_parser(sensor)

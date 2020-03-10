@@ -54,8 +54,7 @@ class HueRemote(HueSensorBaseDevice, RemoteDevice):
             icon = REMOTE_ICONS.get(data["model"])
             if icon:
                 return icon
-        _LOGGER.warning(f"No icon found for {self.entity_id}")
-        return "mdi:remote"
+        return "mdi:remote"  # pragma: no cover
 
     @property
     def force_update(self):

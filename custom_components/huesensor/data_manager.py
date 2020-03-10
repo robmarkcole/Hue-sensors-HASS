@@ -8,9 +8,16 @@ from homeassistant.components.hue import DOMAIN as HUE_DOMAIN, HueBridge
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.event import async_track_time_interval
 
-from .hue_api_response import parse_hue_api_response, ENTITY_ATTRS
+from .hue_api_response import (
+    BINARY_SENSOR_MODELS,
+    ENTITY_ATTRS,
+    parse_hue_api_response,
+    REMOTE_MODELS,
+)
 
 _LOGGER = logging.getLogger(__name__)
+
+_KNOWN_MODEL_IDS = tuple(BINARY_SENSOR_MODELS + REMOTE_MODELS)
 
 # Scan interval for remotes and binary sensors is set to < 1s
 # just to ~ensure that an update is called for each HA tick,
@@ -45,6 +52,7 @@ class HueSensorData:
             await bridge.sensor_manager.coordinator.async_request_refresh()
             data = parse_hue_api_response(
                 sensor.raw for sensor in bridge.api.sensors.values()
+                if sensor.raw["modelid"].startswith(_KNOWN_MODEL_IDS)
             )
             for dev_id, dev_data in data.items():
                 updated = False
@@ -169,7 +177,7 @@ class HueSensorBaseDevice(Entity):
         # self.bridge.sensor_manager.coordinator.async_remove_listener(
         #     self.async_write_ha_state
         # )
-        _LOGGER.warning("%s: Removing entity from HA", self.entity_id)
+        _LOGGER.debug("%s: Removing entity from HA", self.entity_id)
         self._data_manager.sensors.pop(self._hue_id)
 
         if self._data_manager.sensors:
@@ -200,8 +208,7 @@ class HueSensorBaseDevice(Entity):
     @property
     def device_state_attributes(self):
         """Attributes."""
-        data = self.sensor_data
-        if not data:
-            _LOGGER.info(f"Ignoring {self.entity_id}")
-            return {}
-        return {key: data.get(key) for key in ENTITY_ATTRS.get(data["model"], [])}
+        return {
+            key: self.sensor_data.get(key)
+            for key in ENTITY_ATTRS.get(self.sensor_data["model"], ())
+        }
