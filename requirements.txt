@@ -1,2 +1,2 @@
-aiohue==2.0.0
-attrs==19.3.0
+homeassistant>=0.106.4
+aiohue>=2.0.0
