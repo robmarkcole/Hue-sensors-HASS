@@ -4,14 +4,13 @@ language: python
 python:
  - "3.7"
 before_install:
-    - pip install pytest pytest-cov
+    - pip install -r requirements-dev.txt
     - pip install coveralls
 install:
     - pip install -r requirements.txt
-    - pip install -r requirements-dev.txt
 # command to run tests
 script:
-    - py.test --cov=custom_components tests/ -vv -p no:warnings
+    - py.test --cov=custom_components tests/ -vv -s
 after_success:
     - coveralls
     - codecov

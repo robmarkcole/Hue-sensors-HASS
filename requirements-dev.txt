@@ -1,6 +1,10 @@
-asynctest
 black
-pytest
+pytest>=5.3
+pytest-aiohttp
+pytest-sugar
+pytest-timeout
+pytest==5.3.5
+requests_mock
 pytest-cov
 homeassistant==0.106.4
 codecov
