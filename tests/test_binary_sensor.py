@@ -1,7 +1,5 @@
-"""
-Tests for binary_sensor.py
-"""
-import custom_components.huesensor.binary_sensor as bs
+"""Tests for binary_sensor.py."""
+from custom_components.huesensor.hue_api_response import parse_sml
 
 MOCK_ZLLPresence = {
     "state": {"presence": False, "lastupdated": "2020-02-06T07:28:08"},
@@ -102,6 +100,6 @@ PARSED_ZLLTemperature = {"temperature": 17.44}
 
 
 def test_parse_sml():
-    assert bs.parse_sml(MOCK_ZLLPresence) == PARSED_ZLLPresence
-    assert bs.parse_sml(MOCK_ZLLLightlevel) == PARSED_ZLLLightlevel
-    assert bs.parse_sml(MOCK_ZLLTemperature) == PARSED_ZLLTemperature
+    assert parse_sml(MOCK_ZLLPresence) == PARSED_ZLLPresence
+    assert parse_sml(MOCK_ZLLLightlevel) == PARSED_ZLLLightlevel
+    assert parse_sml(MOCK_ZLLTemperature) == PARSED_ZLLTemperature

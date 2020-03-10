@@ -20,7 +20,7 @@ from homeassistant.const import (
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import slugify
 
-from . import get_bridges
+from .data_manager import get_bridges
 
 _LOGGER = logging.getLogger(__name__)
 
