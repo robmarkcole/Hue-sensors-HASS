@@ -1,5 +1,7 @@
 """Hue API data parsing for sensors."""
 import logging
+from typing import Any, Callable, Iterable, Dict, Optional, Tuple
+
 from homeassistant.const import STATE_OFF, STATE_ON
 
 REMOTE_MODELS = ["RWL", "ROM", "FOH", "ZGP", "Z3-"]
@@ -49,7 +51,10 @@ FOH_BUTTONS = {
     99: "double_lower_release",
 }
 RWL_RESPONSE_CODES = {
-    "0": "_click", "1": "_hold", "2": "_click_up", "3": "_hold_up"
+    "0": "_click",
+    "1": "_hold",
+    "2": "_click_up",
+    "3": "_hold_up",
 }
 TAP_BUTTONS = {34: "1_click", 16: "2_click", 17: "3_click", 18: "4_click"}
 Z3_BUTTON = {
@@ -61,7 +66,7 @@ Z3_BUTTON = {
 Z3_DIAL = {1: "begin", 2: "end"}
 
 
-def parse_sml(response):
+def parse_sml(response: Dict[str, Any]) -> Dict[str, Any]:
     """Parse the json for a SML Hue motion sensor and return the data."""
     data = {}
     if response["type"] == "ZLLLightLevel":
@@ -120,7 +125,7 @@ def parse_sml(response):
     return data
 
 
-def parse_zgp(response):
+def parse_zgp(response: Dict[str, Any]) -> Dict[str, Any]:
     """Parse the json response for a ZGPSWITCH Hue Tap."""
     press = response["state"]["buttonevent"]
     if press is None or press not in TAP_BUTTONS:
@@ -138,7 +143,7 @@ def parse_zgp(response):
     return data
 
 
-def parse_rwl(response):
+def parse_rwl(response: Dict[str, Any]) -> Dict[str, Any]:
     """Parse the json response for a RWL Hue remote."""
     button = None
     if response["state"]["buttonevent"]:
@@ -158,7 +163,7 @@ def parse_rwl(response):
     return data
 
 
-def parse_foh(response):
+def parse_foh(response: Dict[str, Any]) -> Dict[str, Any]:
     """Parse the JSON response for a FOHSWITCH (type still = ZGPSwitch)."""
     press = response["state"]["buttonevent"]
     if press is None or press not in FOH_BUTTONS:
@@ -176,9 +181,8 @@ def parse_foh(response):
     return data
 
 
-def parse_z3_rotary(response):
+def parse_z3_rotary(response: Dict[str, Any]) -> Dict[str, Any]:
     """Parse the json response for a Lutron Aurora Rotary Event."""
-    logging.warning(response)
     turn = response["state"]["rotaryevent"]
     dial_position = response["state"]["expectedrotation"]
     if turn is None or turn not in Z3_DIAL:
@@ -200,7 +204,7 @@ def parse_z3_rotary(response):
     return data
 
 
-def parse_z3_switch(response):
+def parse_z3_switch(response: Dict[str, Any]) -> Dict[str, Any]:
     """Parse the json response for a Lutron Aurora."""
     press = response["state"]["buttonevent"]
     logging.warning(press)
@@ -217,49 +221,62 @@ def parse_z3_switch(response):
     return data
 
 
-def parse_hue_api_response(sensors):
+def _ident_raw_sensor(
+    raw_sensor_data: Dict[str, Any]
+) -> Tuple[Optional[str], Callable]:
+    """Identify sensor types and return unique identifier and parser."""
+
+    def _default_parser(*x):
+        return x
+
+    model_id = raw_sensor_data["modelid"][0:3]
+    unique_sensor_id = raw_sensor_data["uniqueid"]
+
+    if model_id == "SML":
+        sensor_key = model_id + "_" + unique_sensor_id[:-5]
+        return sensor_key, parse_sml
+
+    elif model_id in ("RWL", "ROM"):
+        sensor_key = model_id + "_" + unique_sensor_id[:-5]
+        return sensor_key, parse_rwl
+
+    elif model_id in ("FOH", "ZGP"):
+        # **** New Model ID ****
+        # needed for uniqueness
+        sensor_key = model_id + "_" + unique_sensor_id[-14:-3]
+        if model_id == "FOH":
+            return sensor_key, parse_foh
+
+        return sensor_key, parse_zgp
+
+    elif model_id == "Z3-":
+        # Newest Model ID / Lutron Aurora / Hue Bridge
+        # treats it as two sensors, I wanted them combined
+        if raw_sensor_data["type"] == "ZLLRelativeRotary":  # Rotary Dial
+            # Rotary key is substring of button
+            sensor_key = model_id + "_" + unique_sensor_id[:-5]
+            return sensor_key, parse_z3_rotary
+        else:
+            sensor_key = model_id + "_" + unique_sensor_id
+            return sensor_key, parse_z3_switch
+
+    return None, _default_parser
+
+
+def parse_hue_api_response(sensors: Iterable[Dict[str, Any]]):
     """Take in the Hue API json response."""
     data_dict = {}  # The list of sensors, referenced by their hue_id.
 
     # Loop over all keys (1,2 etc) to identify sensors and get data.
     for sensor in sensors:
-        modelid = sensor["modelid"][0:3]
-        if modelid == "SML":
-            _key = modelid + "_" + sensor["uniqueid"][:-5]
-            if _key not in data_dict:
-                data_dict[_key] = parse_sml(sensor)
-            else:
-                data_dict[_key].update(parse_sml(sensor))
-        elif modelid in ["RWL", "ROM"]:
-            _key = modelid + "_" + sensor["uniqueid"][:-5]
-            if modelid == "RWL" or modelid == "ROM":
-                data_dict[_key] = parse_rwl(sensor)
+        _key, _raw_parser = _ident_raw_sensor(sensor)
+        if _key is None:
+            continue
 
-        elif modelid in ["FOH", "ZGP"]:
-            # **** New Model ID ****
-            # needed for uniqueness
-            _key = modelid + "_" + sensor["uniqueid"][-14:-3]
-            if modelid == "FOH":
-                data_dict[_key] = parse_foh(sensor)
-            elif modelid == "ZGP":
-                data_dict[_key] = parse_zgp(sensor)
-
-        elif modelid == "Z3-":
-            # Newest Model ID / Lutron Aurora / Hue Bridge
-            # treats it as two sensors, I wanted them combined
-            if sensor["type"] == "ZLLRelativeRotary":  # Rotary Dial
-                _key = (
-                    modelid + "_" + sensor["uniqueid"][:-5]
-                )  # Rotary key is substring of button
-                key_value = parse_z3_rotary(sensor)
-            else:
-                _key = modelid + "_" + sensor["uniqueid"]
-                key_value = parse_z3_switch(sensor)
-
-            # Combine parsed data
-            if _key in data_dict:
-                data_dict[_key].update(key_value)
-            else:
-                data_dict[_key] = key_value
+        parsed_sensor = _raw_parser(sensor)
+        if _key not in data_dict:
+            data_dict[_key] = parsed_sensor
+        else:
+            data_dict[_key].update(parsed_sensor)
 
     return data_dict

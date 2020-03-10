@@ -1,100 +1,90 @@
 """Tests for remote.py."""
+import logging
+from datetime import timedelta
+
+import pytest
+
+from custom_components.huesensor import DOMAIN
+from custom_components.huesensor.data_manager import HueSensorData
 from custom_components.huesensor.hue_api_response import (
+    parse_hue_api_response,
     parse_rwl,
     parse_zgp,
     parse_z3_rotary,
 )
+from custom_components.huesensor.remote import async_setup_platform, HueRemote
 
-MOCK_ZGP = {
-    "state": {"buttonevent": 17, "lastupdated": "2019-06-22T14:43:50"},
-    "swupdate": {"state": "notupdatable", "lastinstall": None},
-    "config": {"on": True},
-    "name": "Hue Tap",
-    "type": "ZGPSwitch",
-    "modelid": "ZGPSWITCH",
-    "manufacturername": "Philips",
-    "productname": "Hue tap switch",
-    "diversityid": "d8cde5d5-0eef-4b95-b0f0-71ddd2952af4",
-    "uniqueid": "00:00:00:00:00:44:23:08-f2",
-    "capabilities": {"certified": True, "primary": True, "inputs": []},
-}
-MOCK_RWL = {
-    "state": {"buttonevent": 4002, "lastupdated": "2019-12-28T21:58:02"},
-    "swupdate": {"state": "noupdates", "lastinstall": "2019-10-13T13:16:15"},
-    "config": {"on": True, "battery": 100, "reachable": True, "pending": []},
-    "name": "Hue dimmer switch 1",
-    "type": "ZLLSwitch",
-    "modelid": "RWL021",
-    "manufacturername": "Philips",
-    "productname": "Hue dimmer switch",
-    "diversityid": "73bbabea-3420-499a-9856-46bf437e119b",
-    "swversion": "6.1.1.28573",
-    "uniqueid": "00:17:88:01:10:3e:3a:dc-02-fc00",
-    "capabilities": {"certified": True, "primary": True, "inputs": []},
-}
-MOCK_Z3_ROTARY = {
-    "state": {
-        "rotaryevent": 2,
-        "expectedrotation": 208,
-        "expectedeventduration": 400,
-        "lastupdated": "2020-01-31T15:56:19",
-    },
-    "swupdate": {"state": "noupdates", "lastinstall": "2019-11-26T03:35:21"},
-    "config": {"on": True, "battery": 100, "reachable": True, "pending": []},
-    "name": "Lutron Aurora 1",
-    "type": "ZLLRelativeRotary",
-    "modelid": "Z3-1BRL",
-    "manufacturername": "Lutron",
-    "productname": "Lutron Aurora",
-    "diversityid": "2c3a75ff-55c4-4e4d-8c44-82d330b8eb9b",
-    "swversion": "3.4",
-    "uniqueid": "ff:ff:00:0f:e7:fd:ba:b7-01-fc00-0014",
-    "capabilities": {
-        "certified": True,
-        "primary": True,
-        "inputs": [
-            {
-                "repeatintervals": [400],
-                "events": [
-                    {"rotaryevent": 1, "eventtype": "start"},
-                    {"rotaryevent": 2, "eventtype": "repeat"},
-                ],
-            }
-        ],
-    },
-}
-
-PARSED_ZGP = {
-    "last_button_event": "3_click",
-    "last_updated": ["2019-06-22", "14:43:50"],
-    "model": "ZGP",
-    "name": "Hue Tap",
-    "state": "3_click",
-}
-PARSED_RWL = {
-    "battery": 100,
-    "last_button_event": "4_click_up",
-    "last_updated": ["2019-12-28", "21:58:02"],
-    "model": "RWL",
-    "name": "Hue dimmer switch 1",
-    "on": True,
-    "reachable": True,
-    "state": "4_click_up",
-}
-PARSED_Z3_ROTARY = {
-    "model": "Z3-",
-    "name": "Lutron Aurora 1",
-    "dial_state": "end",
-    "dial_position": 208,
-    "software_update": "noupdates",
-    "battery": 100,
-    "on": True,
-    "reachable": True,
-    "last_updated": ["2020-01-31", "15:56:19"],
-}
+from .conftest import (
+    DEV_ID_REMOTE_1,
+    DEV_ID_SENSOR_1,
+    patch_async_track_time_interval,
+)
+from .sensor_samples import (
+    MOCK_RWL,
+    MOCK_ZGP,
+    MOCK_Z3_ROTARY,
+    PARSED_RWL,
+    PARSED_ZGP,
+    PARSED_Z3_ROTARY,
+)
 
 
-def test_parse_zgp():
-    assert parse_zgp(MOCK_ZGP) == PARSED_ZGP
-    assert parse_rwl(MOCK_RWL) == PARSED_RWL
-    assert parse_z3_rotary(MOCK_Z3_ROTARY) == PARSED_Z3_ROTARY
+@pytest.mark.parametrize(
+    "raw_response, sensor_key, parsed_response, parser_func",
+    (
+        (MOCK_ZGP, "ZGP_00:44:23:08", PARSED_ZGP, parse_zgp),
+        (MOCK_RWL, "RWL_00:17:88:01:10:3e:3a:dc-02", PARSED_RWL, parse_rwl),
+        (
+            MOCK_Z3_ROTARY,
+            "Z3-_ff:ff:00:0f:e7:fd:ba:b7-01-fc00",
+            PARSED_Z3_ROTARY,
+            parse_z3_rotary,
+        ),
+    ),
+)
+def test_parse_remote_raw_data(
+    raw_response, sensor_key, parsed_response, parser_func, caplog
+):
+    """Test data parsers for known remotes and check behavior for unknown."""
+    assert parser_func(raw_response) == parsed_response
+    unknown_sensor_data = {"modelid": "new_one", "uniqueid": "ff:00:11:22"}
+    assert parse_hue_api_response(
+        [raw_response, unknown_sensor_data, raw_response]
+    ) == {sensor_key: parsed_response}
+    assert len(caplog.messages) == 0
+
+
+async def test_platform_remote_setup(mock_hass, caplog):
+    """Test platform setup for remotes."""
+    with caplog.at_level(logging.DEBUG):
+        with patch_async_track_time_interval():
+            await async_setup_platform(
+                mock_hass,
+                {
+                    "platform": "huesensor",
+                    "scan_interval": timedelta(seconds=3),
+                },
+                lambda *x: logging.warning("Added remote entity: %s", x[0]),
+            )
+
+            assert DOMAIN in mock_hass.data
+            data_manager = mock_hass.data[DOMAIN]
+            assert isinstance(data_manager, HueSensorData)
+            assert data_manager._scan_interval == timedelta(seconds=3)
+            assert len(data_manager.data) == 2
+            assert DEV_ID_REMOTE_1 in data_manager.data
+            assert DEV_ID_SENSOR_1 in data_manager.data
+
+            assert len(data_manager.sensors) == 1
+            assert DEV_ID_REMOTE_1 in data_manager.sensors
+            remote = data_manager.sensors[DEV_ID_REMOTE_1]
+            assert isinstance(remote, HueRemote)
+            assert remote.force_update
+            assert remote.state == "3_click"
+            assert remote.icon == "mdi:remote"
+            assert not remote.should_poll
+            assert "last_updated" in remote.device_state_attributes
+            assert remote.unique_id == DEV_ID_REMOTE_1
+
+            await remote.async_added_to_hass()
+            await remote.async_will_remove_from_hass()

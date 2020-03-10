@@ -2,7 +2,10 @@
 import logging
 
 from homeassistant.const import CONF_SCAN_INTERVAL
-from homeassistant.components.remote import PLATFORM_SCHEMA, RemoteDevice  # noqa: F401
+from homeassistant.components.remote import (  # noqa: F401
+    PLATFORM_SCHEMA,
+    RemoteDevice,
+)
 
 from . import DOMAIN
 from .data_manager import (
@@ -54,8 +57,7 @@ class HueRemote(HueSensorBaseDevice, RemoteDevice):
             icon = REMOTE_ICONS.get(data["model"])
             if icon:
                 return icon
-        _LOGGER.warning(f"No icon found for {self.entity_id}")
-        return "mdi:remote"
+        return "mdi:remote"  # pragma: no cover
 
     @property
     def force_update(self):
