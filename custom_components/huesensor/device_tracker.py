@@ -20,7 +20,7 @@ from homeassistant.const import (
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import slugify
 
-from .data_manager import get_bridges
+from .data_manager import async_get_bridges
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -87,19 +87,12 @@ class HueDeviceScanner(DeviceScanner):
 
     async def async_update_info(self, now=None):
         """Get the bridge info."""
-        bridges = get_bridges(self.hass)
-        if not bridges:
-            return
-
-        for bridge in bridges:
+        async for bridge in async_get_bridges(self.hass):
             await bridge.sensor_manager.coordinator.async_request_refresh()
-
-        sensors = [
-            self.async_see_sensor(sensor)
-            for bridge in bridges
-            for sensor in bridge.api.sensors.values()
-            if sensor.type == TYPE_GEOFENCE
-        ]
-        if not sensors:
-            return
-        await asyncio.wait(sensors)
+            tasks = [
+                self.async_see_sensor(sensor)
+                for sensor in bridge.api.sensors.values()
+                if sensor.type == TYPE_GEOFENCE
+            ]
+            if tasks:
+                await asyncio.wait(tasks)

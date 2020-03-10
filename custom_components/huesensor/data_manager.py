@@ -2,7 +2,7 @@
 import asyncio
 from datetime import timedelta
 import logging
-from typing import AsyncIterable, List, Tuple
+from typing import AsyncIterable, Tuple
 
 from homeassistant.components.hue import DOMAIN as HUE_DOMAIN, HueBridge
 from homeassistant.helpers.entity import Entity
@@ -25,13 +25,11 @@ _KNOWN_MODEL_IDS = tuple(BINARY_SENSOR_MODELS + REMOTE_MODELS)
 DEFAULT_SCAN_INTERVAL = timedelta(seconds=0.5)
 
 
-def get_bridges(hass) -> List[HueBridge]:
+async def async_get_bridges(hass) -> AsyncIterable[HueBridge]:
     """Retrieve Hue bridges from loaded official Hue integration."""
-    return [
-        entry
-        for entry in hass.data[HUE_DOMAIN].values()
-        if isinstance(entry, HueBridge) and entry.api
-    ]
+    for entry in hass.data[HUE_DOMAIN].values():
+        if isinstance(entry, HueBridge) and entry.api:
+            yield entry
 
 
 class HueSensorData:
@@ -48,14 +46,8 @@ class HueSensorData:
         self._update_listener = None
 
     async def _iter_data(self) -> AsyncIterable[Tuple[bool, str, str, dict]]:
-        bridges = get_bridges(self.hass)
-        await asyncio.gather(
-            *[
-                bridge.sensor_manager.coordinator.async_request_refresh()
-                for bridge in bridges
-            ]
-        )
-        for bridge in bridges:
+        async for bridge in async_get_bridges(self.hass):
+            await bridge.sensor_manager.coordinator.async_request_refresh()
             data = parse_hue_api_response(
                 sensor.raw
                 for sensor in bridge.api.sensors.values()
@@ -145,15 +137,20 @@ class HueSensorData:
 
     async def async_update_from_bridges(self, now=None):
         """Request data from bridges and update sensors data."""
-        async for updated, _, dev_id, _ in self._iter_data():
+        async for updated, _model, dev_id, _dev_data in self._iter_data():
             if updated:
-                self.sensors[dev_id].async_write_ha_state()
-                _LOGGER.debug(
-                    "%s (%s): updated with state=%s",
-                    self.sensors[dev_id].entity_id,
-                    dev_id,
-                    self.sensors[dev_id].state,
-                )
+                try:
+                    self.sensors[dev_id].async_write_ha_state()
+                    _LOGGER.debug(
+                        "%s (%s): updated with state=%s",
+                        self.sensors[dev_id].entity_id,
+                        dev_id,
+                        self.sensors[dev_id].state,
+                    )
+                except KeyError as exc:  # pragma: no cover
+                    _LOGGER.error(
+                        "Unknown %s, not in %s", exc, self.sensors.keys()
+                    )
 
 
 class HueSensorBaseDevice(Entity):
