@@ -8,8 +8,14 @@ from homeassistant.core import HomeAssistant
 from homeassistant.components.hue import DOMAIN as HUE_DOMAIN, HueBridge
 from homeassistant.components.hue.sensor_base import SensorManager
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.util import slugify
 import pytest
 
+from custom_components.huesensor.data_manager import (
+    BINARY_SENSOR_MODELS,
+    HueSensorBaseDevice,
+    HueSensorData,
+)
 from .sensor_samples import (
     MOCK_GEOFENCE,
     MOCK_ZGP,
@@ -19,7 +25,22 @@ from .sensor_samples import (
 )
 
 DEV_ID_REMOTE_1 = "ZGP_00:44:23:08"
+DEV_ID_REMOTE_2 = "RWL_00:17:88:01:10:3e:3a:dc-02"
 DEV_ID_SENSOR_1 = "SML_00:17:88:01:02:00:af:28-02"
+
+
+async def entity_test_added_to_hass(
+    data_manager: HueSensorData, entity: HueSensorBaseDevice,
+):
+    """Test routine to mock the internals of async_added_to_hass."""
+    entity.hass = data_manager.hass
+    if entity.unique_id.startswith(BINARY_SENSOR_MODELS):
+        entity.entity_id = f"binary_sensor.test_{slugify(entity.name)}"
+    else:
+        entity.entity_id = f"remote.test_{slugify(entity.name)}"
+    await entity.async_added_to_hass()
+    assert data_manager.available
+    assert entity.unique_id in data_manager.sensors
 
 
 class MockAsyncCounter:
@@ -47,14 +68,20 @@ class MockAsyncCounter:
         return self._counter
 
 
+def add_sensor_data_to_bridge(bridge, sensor_key, raw_data):
+    """Append a sensor raw data packed to the mocked bridge."""
+    bridge.sensors[sensor_key] = GenericSensor(
+        raw_data["uniqueid"], deepcopy(raw_data), None
+    )
+
+
 def _make_mock_bridge(idx_bridge, *sensors):
     bridge = MagicMock(spec=Bridge)
-    bridge.sensors = {
-        f"{raw_data['type']}_{idx_bridge}_{i}": GenericSensor(
-            raw_data["uniqueid"], deepcopy(raw_data), None
+    bridge.sensors = {}
+    for i, raw_data in enumerate(sensors):
+        add_sensor_data_to_bridge(
+            bridge, f"{raw_data['type']}_{idx_bridge}_{i}", raw_data
         )
-        for i, raw_data in enumerate(sensors)
-    }
     return bridge
 
 

@@ -18,6 +18,7 @@ from custom_components.huesensor.hue_api_response import (
 from .conftest import (
     DEV_ID_REMOTE_1,
     DEV_ID_SENSOR_1,
+    entity_test_added_to_hass,
     patch_async_track_time_interval,
 )
 from .sensor_samples import (
@@ -80,16 +81,15 @@ async def test_platform_binary_sensor_setup(mock_hass, caplog):
             assert DOMAIN in mock_hass.data
             data_manager = mock_hass.data[DOMAIN]
             assert isinstance(data_manager, HueSensorData)
+            assert len(data_manager.registered_entities) == 1
             assert data_manager._scan_interval == timedelta(seconds=2)
-            assert len(data_manager.data) == 2
-            assert DEV_ID_REMOTE_1 in data_manager.data
+            assert len(data_manager.data) == 1
+            assert DEV_ID_REMOTE_1 not in data_manager.data
             assert DEV_ID_SENSOR_1 in data_manager.data
+            assert len(data_manager.sensors) == 0
 
-            assert len(data_manager.data) == 2
-            assert len(data_manager.sensors) == 1
-
-            assert DEV_ID_SENSOR_1 in data_manager.sensors
-            bin_sensor = data_manager.sensors[DEV_ID_SENSOR_1]
+            assert DEV_ID_SENSOR_1 in data_manager.registered_entities
+            bin_sensor = data_manager.registered_entities[DEV_ID_SENSOR_1]
             assert isinstance(bin_sensor, HueBinarySensor)
             assert bin_sensor.device_class == "motion"
             assert not bin_sensor.is_on
@@ -98,5 +98,8 @@ async def test_platform_binary_sensor_setup(mock_hass, caplog):
             assert "light_level" in bin_sensor.device_state_attributes
             assert bin_sensor.unique_id == DEV_ID_SENSOR_1
 
-            await bin_sensor.async_added_to_hass()
+            await entity_test_added_to_hass(data_manager, bin_sensor)
+            assert len(data_manager.sensors) == 1
             await bin_sensor.async_will_remove_from_hass()
+            assert len(data_manager.sensors) == 0
+            assert len(data_manager.registered_entities) == 0

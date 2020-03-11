@@ -17,6 +17,7 @@ from custom_components.huesensor.remote import async_setup_platform, HueRemote
 from .conftest import (
     DEV_ID_REMOTE_1,
     DEV_ID_SENSOR_1,
+    entity_test_added_to_hass,
     patch_async_track_time_interval,
 )
 from .sensor_samples import (
@@ -70,15 +71,24 @@ async def test_platform_remote_setup(mock_hass, caplog):
             assert DOMAIN in mock_hass.data
             data_manager = mock_hass.data[DOMAIN]
             assert isinstance(data_manager, HueSensorData)
+            assert len(data_manager.registered_entities) == 1
             assert data_manager._scan_interval == timedelta(seconds=3)
-            assert len(data_manager.data) == 2
+            assert len(data_manager.data) == 1
             assert DEV_ID_REMOTE_1 in data_manager.data
-            assert DEV_ID_SENSOR_1 in data_manager.data
+            assert DEV_ID_SENSOR_1 not in data_manager.data
 
+            assert len(data_manager.sensors) == 0
+            assert len(data_manager.registered_entities) == 1
+            remote = data_manager.registered_entities[DEV_ID_REMOTE_1]
+            assert not remote.hass
+
+            await entity_test_added_to_hass(data_manager, remote)
+            # await remote.async_added_to_hass()
             assert len(data_manager.sensors) == 1
             assert DEV_ID_REMOTE_1 in data_manager.sensors
-            remote = data_manager.sensors[DEV_ID_REMOTE_1]
+
             assert isinstance(remote, HueRemote)
+            assert remote.hass
             assert remote.force_update
             assert remote.state == "3_click"
             assert remote.icon == "mdi:remote"
@@ -86,5 +96,7 @@ async def test_platform_remote_setup(mock_hass, caplog):
             assert "last_updated" in remote.device_state_attributes
             assert remote.unique_id == DEV_ID_REMOTE_1
 
-            await remote.async_added_to_hass()
             await remote.async_will_remove_from_hass()
+            assert len(data_manager.sensors) == 0
+            assert len(data_manager.registered_entities) == 0
+            assert not data_manager.available

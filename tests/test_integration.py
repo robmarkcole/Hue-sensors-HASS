@@ -14,10 +14,14 @@ from custom_components.huesensor.binary_sensor import (
 )
 
 from .conftest import (
+    add_sensor_data_to_bridge,
     DEV_ID_REMOTE_1,
+    DEV_ID_REMOTE_2,
     DEV_ID_SENSOR_1,
+    entity_test_added_to_hass,
     patch_async_track_time_interval,
 )
+from .sensor_samples import MOCK_RWL
 
 
 async def test_integration(mock_hass_2_bridges, caplog):
@@ -44,23 +48,23 @@ async def test_integration(mock_hass_2_bridges, caplog):
             assert DOMAIN in mock_hass.data
             data_manager = mock_hass.data[DOMAIN]
             assert isinstance(data_manager, HueSensorData)
-            assert len(data_manager.data) == 4
+            assert len(data_manager.data) == 3
+            assert len(data_manager.registered_entities) == 3
 
             # Check bridge updates
             assert data_coord_b1.async_request_refresh.call_count == 1
             assert data_coord_b2.async_request_refresh.call_count == 1
 
-            assert len(data_manager.sensors) == 3
-            assert DEV_ID_REMOTE_1 in data_manager.sensors
-            remote = data_manager.sensors[DEV_ID_REMOTE_1]
+            assert len(data_manager.sensors) == 0
+            assert DEV_ID_REMOTE_1 in data_manager.registered_entities
+            remote = data_manager.registered_entities[DEV_ID_REMOTE_1]
             assert remote.state == "3_click"
             assert remote.icon == "mdi:remote"
 
             # add to HA
-            for i, device in enumerate(data_manager.sensors.values()):
-                await device.async_added_to_hass()
-                device.hass = mock_hass
-                device.entity_id = f"remote.test_{i + 1}"
+            for device in data_manager.registered_entities.values():
+                await entity_test_added_to_hass(data_manager, device)
+            assert len(data_manager.sensors) == 3
 
             assert len(caplog.messages) == 4
 
@@ -68,27 +72,26 @@ async def test_integration(mock_hass_2_bridges, caplog):
                 mock_hass, config_bs, _add_entity_counter
             )
             assert sum(entity_counter) == 2
-            assert len(data_manager.sensors) == 4
+            assert len(data_manager.sensors) == 3
 
             # Check bridge updates
             assert data_coord_b1.async_request_refresh.call_count == 2
             assert data_coord_b2.async_request_refresh.call_count == 2
             assert len(caplog.messages) == 6
-            assert DEV_ID_SENSOR_1 in data_manager.sensors
-            bin_sensor = data_manager.sensors[DEV_ID_SENSOR_1]
+            assert DEV_ID_SENSOR_1 in data_manager.registered_entities
+            bin_sensor = data_manager.registered_entities[DEV_ID_SENSOR_1]
 
             # add to HA
-            await bin_sensor.async_added_to_hass()
-            bin_sensor.hass = mock_hass
-            bin_sensor.entity_id = "binary_sensor.test1"
+            await entity_test_added_to_hass(data_manager, bin_sensor)
+            assert len(data_manager.sensors) == 4
             assert len(caplog.messages) == 7
 
             # Change the state on bridge and call update
-            hue_bridge = mock_hass.data[HUE_DOMAIN][1]
-            r1_data_st = hue_bridge.api.sensors["ZGPSwitch_1_0"].raw["state"]
+            hue_bridge = mock_hass.data[HUE_DOMAIN][1].api
+            r1_data_st = hue_bridge.sensors["ZGPSwitch_1_0"].raw["state"]
             r1_data_st["buttonevent"] = 16
             r1_data_st["lastupdated"] = "2019-06-22T14:43:55"
-            hue_bridge.api.sensors["ZGPSwitch_1_0"].raw["state"] = r1_data_st
+            hue_bridge.sensors["ZGPSwitch_1_0"].raw["state"] = r1_data_st
 
             assert data_coord_b1.async_request_refresh.call_count == 2
             assert data_coord_b2.async_request_refresh.call_count == 2
@@ -121,3 +124,86 @@ async def test_integration(mock_hass_2_bridges, caplog):
             assert data_coord_b2.async_request_refresh.call_count == 3
 
         assert len(caplog.messages) == 15
+
+
+async def test_add_new_device(mock_hass, caplog):
+    """Test behavior when a new device is discovered."""
+    entity_counter = []
+    config_remote = {"platform": DOMAIN, "scan_interval": timedelta(seconds=3)}
+
+    data_coord_b1 = mock_hass.data[HUE_DOMAIN][0].sensor_manager.coordinator
+
+    def _add_entity_counter(*_args):
+        entity_counter.append(1)
+
+    with caplog.at_level(logging.DEBUG):
+        with patch_async_track_time_interval():
+            # setup remotes
+            await async_setup_remote(
+                mock_hass, config_remote, _add_entity_counter
+            )
+            assert sum(entity_counter) == 1
+
+            assert DOMAIN in mock_hass.data
+            data_manager = mock_hass.data[DOMAIN]
+            assert isinstance(data_manager, HueSensorData)
+            assert len(data_manager.data) == 1
+            assert len(data_manager.registered_entities) == 1
+
+            # Check bridge updates
+            assert data_coord_b1.async_request_refresh.call_count == 1
+            assert len(data_manager.sensors) == 0
+
+            # add to HA
+            for device in data_manager.registered_entities.values():
+                await entity_test_added_to_hass(data_manager, device)
+            assert len(data_manager.sensors) == 1
+            assert len(caplog.messages) == 2
+
+            # Add a new device to bridge data and call update
+            new_remote_id = f"{MOCK_RWL['type']}_0_0"
+            hue_bridge = mock_hass.data[HUE_DOMAIN][0].api
+            add_sensor_data_to_bridge(hue_bridge, new_remote_id, MOCK_RWL)
+            await data_manager.async_update_from_bridges()
+
+            # Check bridge updates
+            assert data_coord_b1.async_request_refresh.call_count == 2
+            assert len(data_manager.registered_entities) == 2
+            assert len(data_manager.sensors) == 1
+            assert len(caplog.messages) == 3
+            assert sum(entity_counter) == 2
+            assert DEV_ID_REMOTE_2 in data_manager.registered_entities
+            new_remote = data_manager.registered_entities[DEV_ID_REMOTE_2]
+            assert new_remote.state == "4_click_up"
+
+            # new device changes state
+            remote_data_st = hue_bridge.sensors[new_remote_id].raw["state"]
+            remote_data_st["buttonevent"] = 3002
+            remote_data_st["lastupdated"] = "2019-12-28T21:58:03"
+            hue_bridge.sensors[new_remote_id].raw["state"] = remote_data_st
+            assert new_remote.state == "4_click_up"
+
+            # new update comes, but new remote is not added yet
+            await data_manager.async_update_from_bridges()
+            assert data_coord_b1.async_request_refresh.call_count == 3
+            assert sum(entity_counter) == 2
+            assert len(data_manager.sensors) == 1
+            assert new_remote.state == "3_click_up"
+            assert len(caplog.messages) == 4
+
+            # now it is
+            await entity_test_added_to_hass(data_manager, new_remote)
+            assert len(data_manager.sensors) == 2
+            assert len(caplog.messages) == 5
+
+            await data_manager.async_update_from_bridges()
+            assert data_coord_b1.async_request_refresh.call_count == 4
+            assert len(data_manager.sensors) == 2
+
+            # Remove entities from hass
+            for i, device in enumerate(data_manager.sensors.copy().values()):
+                await device.async_will_remove_from_hass()
+            assert len(data_manager.sensors) == 0
+            assert len(data_manager.registered_entities) == 0
+            assert data_coord_b1.async_request_refresh.call_count == 4
+            assert len(caplog.messages) == 8
