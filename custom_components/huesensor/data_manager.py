@@ -2,7 +2,7 @@
 import asyncio
 from datetime import timedelta
 import logging
-from typing import AsyncIterable, Tuple
+from typing import AsyncIterable, Set, Tuple
 
 from homeassistant.components.hue import DOMAIN as HUE_DOMAIN, HueBridge
 from homeassistant.helpers.entity import Entity
@@ -41,17 +41,24 @@ class HueSensorData:
         self.lock = asyncio.Lock()
         self.data = {}
         self.sensors = {}
+        self.registered_entities = {}
         self.available = False
         self._scan_interval = None
         self._update_listener = None
 
-    async def _iter_data(self) -> AsyncIterable[Tuple[bool, str, str, dict]]:
+        # delayed setup and discovery with platform + model filter
+        self._registered_models: Set[str] = set()
+        self._registered_platforms = {}
+
+    async def _iter_data(
+        self, models_filter: Tuple[str] = _KNOWN_MODEL_IDS
+    ) -> AsyncIterable[Tuple[bool, str, str, dict]]:
         async for bridge in async_get_bridges(self.hass):
             await bridge.sensor_manager.coordinator.async_request_refresh()
             data = parse_hue_api_response(
                 sensor.raw
                 for sensor in bridge.api.sensors.values()
-                if sensor.raw["modelid"].startswith(_KNOWN_MODEL_IDS)
+                if sensor.raw["modelid"].startswith(models_filter)
             )
             for dev_id, dev_data in data.items():
                 updated = False
@@ -103,19 +110,25 @@ class HueSensorData:
             self.available = False
         _LOGGER.debug(f"Stopped polling with {self._scan_interval}")
 
-    async def async_add_platform_entities(
-        self, entity_cls, platform_models, async_add_entities, scan_interval,
-    ):
-        """Add sensor entities from platform setups."""
-        new_entities = []
-        async for updated, model, dev_id, dev_data in self._iter_data():
-            if model in platform_models and dev_id not in self.sensors:
-                platform_entity = entity_cls(dev_id, self)
-                self.sensors[dev_id] = platform_entity
-                new_entities.append(platform_entity)
+    def _register_new_entity(self, dev_id, model, new_entities_to_add):
+        """Register a new Entity and add it in platform queue for HA setup."""
+        # Create platform entity and register the device
+        entity_cls, async_add_entities = self._registered_platforms[model]
+        platform_entity = entity_cls(dev_id, self)
+        self.registered_entities[dev_id] = platform_entity
 
-        if new_entities:
-            async_add_entities(new_entities, True)
+        # Add entity to platform queue to add it to HA
+        if async_add_entities not in new_entities_to_add:
+            new_entities_to_add[async_add_entities] = [entity_cls, []]
+        new_entities_to_add[async_add_entities][1].append(platform_entity)
+
+    async def _add_new_entities(self, new_entities, scan_interval=None):
+        """Call HA add_entities for each platform with its discovered items."""
+        for func_add_entities, (entity_cls, entities) in new_entities.items():
+            func_add_entities(entities, True)
+
+            if scan_interval is None:
+                continue
 
             if self._scan_interval is None:
                 self._scan_interval = scan_interval
@@ -135,22 +148,47 @@ class HueSensorData:
                 await self.async_stop_scheduler()
                 self._scan_interval = scan_interval
 
+    async def async_add_platform_entities(
+        self, entity_cls, platform_models, func_add_entities, scan_interval,
+    ):
+        """Add sensor entities from platform setups."""
+        for model in platform_models:
+            self._registered_platforms[model] = (entity_cls, func_add_entities)
+            self._registered_models.add(model)
+
+        new_entities_to_add = {}
+        async for is_new, model, dev_id, _ in self._iter_data(platform_models):
+            if is_new and dev_id not in self.registered_entities:
+                self._register_new_entity(dev_id, model, new_entities_to_add)
+
+        await self._add_new_entities(new_entities_to_add, scan_interval)
+
     async def async_update_from_bridges(self, now=None):
         """Request data from bridges and update sensors data."""
-        async for updated, _model, dev_id, _dev_data in self._iter_data():
-            if updated:
-                try:
-                    self.sensors[dev_id].async_write_ha_state()
-                    _LOGGER.debug(
-                        "%s (%s): updated with state=%s",
-                        self.sensors[dev_id].entity_id,
-                        dev_id,
-                        self.sensors[dev_id].state,
-                    )
-                except KeyError as exc:  # pragma: no cover
-                    _LOGGER.error(
-                        "Unknown %s, not in %s", exc, self.sensors.keys()
-                    )
+        new_entities_to_add = {}
+        async for updated, model, dev_id, _dev_data in self._iter_data(
+            tuple(self._registered_models)
+        ):
+            if updated and dev_id not in self.registered_entities:
+                # Discovery of newly added devices
+                _LOGGER.warning(
+                    "New device discovered %s:%s. Adding it now", model, dev_id
+                )
+                self._register_new_entity(dev_id, model, new_entities_to_add)
+            elif updated and dev_id not in self.sensors:
+                # device is registered, but it is not added to hass yet ¿?
+                _LOGGER.warning(
+                    "Device %s:%s registered but not added yet", model, dev_id
+                )
+            elif updated:
+                self.sensors[dev_id].async_write_ha_state()
+                _LOGGER.debug(
+                    "%s (%s): updated with state=%s",
+                    self.sensors[dev_id].entity_id,
+                    dev_id,
+                    self.sensors[dev_id].state,
+                )
+        await self._add_new_entities(new_entities_to_add)
 
 
 class HueSensorBaseDevice(Entity):
@@ -162,23 +200,18 @@ class HueSensorBaseDevice(Entity):
         self._data_manager = data_manager
 
     async def async_added_to_hass(self):
-        """When entity is added to hass."""
-        # TODO use bridge.sensor_manager.coordinator.async_add_listener
-        # self.bridge.sensor_manager.coordinator.async_add_listener(
-        #     self.async_write_ha_state
-        # )
+        """Register sensor when entity is added to hass and start updating."""
+        self._data_manager.sensors[self.unique_id] = self
         await self._data_manager.async_start_scheduler()
         _LOGGER.debug(
-            "Setup complete for %s:%s", self.__class__.__name__, self._hue_id
+            "Setup complete for %s:%s", self.__class__.__name__, self.unique_id
         )
 
     async def async_will_remove_from_hass(self):
         """When entity will be removed from hass."""
-        # self.bridge.sensor_manager.coordinator.async_remove_listener(
-        #     self.async_write_ha_state
-        # )
         _LOGGER.debug("%s: Removing entity from HA", self.entity_id)
-        self._data_manager.sensors.pop(self._hue_id)
+        self._data_manager.sensors.pop(self.unique_id)
+        self._data_manager.registered_entities.pop(self.unique_id)
 
         if self._data_manager.sensors:
             return
@@ -188,7 +221,7 @@ class HueSensorBaseDevice(Entity):
     @property
     def sensor_data(self) -> dict:
         """Access to parsed sensor data."""
-        return self._data_manager.data.get(self._hue_id)
+        return self._data_manager.data.get(self.unique_id)
 
     @property
     def should_poll(self):

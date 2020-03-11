@@ -4,8 +4,8 @@ from typing import Any, Callable, Iterable, Dict, Optional, Tuple
 
 from homeassistant.const import STATE_OFF, STATE_ON
 
-REMOTE_MODELS = ["RWL", "ROM", "FOH", "ZGP", "Z3-"]
-BINARY_SENSOR_MODELS = ["SML"]
+REMOTE_MODELS = ("RWL", "ROM", "FOH", "ZGP", "Z3-")
+BINARY_SENSOR_MODELS = ("SML",)
 ENTITY_ATTRS = {
     "RWL": ["last_updated", "last_button_event", "battery", "on", "reachable"],
     "ROM": ["last_updated", "last_button_event", "battery", "on", "reachable"],
