@@ -18,9 +18,9 @@ from .hue_api_response import REMOTE_MODELS
 _LOGGER = logging.getLogger(__name__)
 
 REMOTE_ICONS = {
-    "RWL": "mdi:remote",
+    "RWL": "mdi:light-switch",
     "ROM": "mdi:remote",
-    "ZGP": "mdi:remote",
+    "ZGP": "mdi:google-circles-communities",
     "FOH": "mdi:light-switch",
     "Z3-": "mdi:light-switch",
 }
