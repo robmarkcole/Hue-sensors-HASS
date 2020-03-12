@@ -24,11 +24,13 @@ from .conftest import (
 )
 from .sensor_samples import (
     MOCK_FOH,
+    MOCK_ROM,
     MOCK_RWL,
     MOCK_ZGP,
     MOCK_Z3_ROTARY,
     MOCK_Z3_SWITCH,
     PARSED_FOH,
+    PARSED_ROM,
     PARSED_RWL,
     PARSED_ZGP,
     PARSED_Z3_ROTARY,
@@ -39,9 +41,10 @@ from .sensor_samples import (
 @pytest.mark.parametrize(
     "raw_response, sensor_key, parsed_response, parser_func",
     (
-        (MOCK_ZGP, "ZGP_00:44:23:08", PARSED_ZGP, parse_zgp),
+        (MOCK_ROM, "ROM_00:17:88:01:06:06:81:5c-01", PARSED_ROM, parse_rwl),
         (MOCK_RWL, "RWL_00:17:88:01:10:3e:3a:dc-02", PARSED_RWL, parse_rwl),
         (MOCK_FOH, "FOH_01:70:xx:xx", PARSED_FOH, parse_foh),
+        (MOCK_ZGP, "ZGP_00:44:23:08", PARSED_ZGP, parse_zgp),
         (
             MOCK_Z3_SWITCH,
             "Z3-_ff:ff:00:0f:e7:fe:95:cd-01-fc00",

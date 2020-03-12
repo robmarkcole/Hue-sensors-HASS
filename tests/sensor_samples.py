@@ -153,6 +153,34 @@ MOCK_FOH = {
         ],
     },
 }
+MOCK_ROM = {
+    "state": {"buttonevent": 1002, "lastupdated": "2019-11-16T11:48:24"},
+    "swupdate": {"state": "noupdates", "lastinstall": "2019-11-16T10:54:58"},
+    "config": {"on": True, "battery": 100, "reachable": True, "pending": []},
+    "name": "Hue Smart button 2",
+    "type": "ZLLSwitch",
+    "modelid": "ROM001",
+    "manufacturername": "Philips",
+    "productname": "Hue Smart button",
+    "diversityid": "8b18a40c-eb6a-40d7-a0af-eb0906613d41",
+    "swversion": "2.21.0_r29784",
+    "uniqueid": "00:17:88:01:06:06:81:5c-01-fc00",
+    "capabilities": {
+        "certified": True,
+        "primary": True,
+        "inputs": [
+            {
+                "repeatintervals": [800],
+                "events": [
+                    {"buttonevent": 1000, "eventtype": "initial_press"},
+                    {"buttonevent": 1001, "eventtype": "repeat"},
+                    {"buttonevent": 1002, "eventtype": "short_release"},
+                    {"buttonevent": 1003, "eventtype": "long_release"},
+                ],
+            }
+        ],
+    },
+}
 MOCK_RWL = {
     "state": {"buttonevent": 4002, "lastupdated": "2019-12-28T21:58:02"},
     "swupdate": {"state": "noupdates", "lastinstall": "2019-10-13T13:16:15"},
@@ -240,6 +268,16 @@ PARSED_FOH = {
     "model": "FOH",
     "name": "Bed Switch",
     "state": "left_lower_release",
+}
+PARSED_ROM = {
+    "battery": 100,
+    "last_button_event": "1_click_up",
+    "last_updated": ["2019-11-16", "11:48:24"],
+    "model": "RWL",
+    "name": "Hue Smart button 2",
+    "on": True,
+    "reachable": True,
+    "state": "1_click_up",
 }
 PARSED_RWL = {
     "battery": 100,
