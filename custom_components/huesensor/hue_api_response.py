@@ -51,12 +51,12 @@ FOH_BUTTONS = {
     99: "double_lower_release",
 }
 RWL_RESPONSE_CODES = {
-    "0": "_click",
-    "1": "_hold",
-    "2": "_click_up",
-    "3": "_hold_up",
+    "0": " click",
+    "1": " hold",
+    "2": " click release",
+    "3": " hold release",
 }
-TAP_BUTTONS = {34: "1_click", 16: "2_click", 17: "3_click", 18: "4_click"}
+TAP_BUTTONS = {34: "1", 16: "2", 17: "3", 18: "4"}
 Z3_BUTTON = {
     1000: "initial_press",
     1001: "repeat",
