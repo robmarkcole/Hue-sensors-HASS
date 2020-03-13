@@ -8,9 +8,11 @@ from custom_components.huesensor import DOMAIN
 from custom_components.huesensor.data_manager import HueSensorData
 from custom_components.huesensor.hue_api_response import (
     parse_hue_api_response,
+    parse_foh,
     parse_rwl,
     parse_zgp,
     parse_z3_rotary,
+    parse_z3_switch,
 )
 from custom_components.huesensor.remote import async_setup_platform, HueRemote
 
@@ -21,20 +23,34 @@ from .conftest import (
     patch_async_track_time_interval,
 )
 from .sensor_samples import (
+    MOCK_FOH,
+    MOCK_ROM,
     MOCK_RWL,
     MOCK_ZGP,
     MOCK_Z3_ROTARY,
+    MOCK_Z3_SWITCH,
+    PARSED_FOH,
+    PARSED_ROM,
     PARSED_RWL,
     PARSED_ZGP,
     PARSED_Z3_ROTARY,
+    PARSED_Z3_SWITCH,
 )
 
 
 @pytest.mark.parametrize(
     "raw_response, sensor_key, parsed_response, parser_func",
     (
-        (MOCK_ZGP, "ZGP_00:44:23:08", PARSED_ZGP, parse_zgp),
+        (MOCK_ROM, "ROM_00:17:88:01:06:06:81:5c-01", PARSED_ROM, parse_rwl),
         (MOCK_RWL, "RWL_00:17:88:01:10:3e:3a:dc-02", PARSED_RWL, parse_rwl),
+        (MOCK_FOH, "FOH_01:70:xx:xx", PARSED_FOH, parse_foh),
+        (MOCK_ZGP, "ZGP_00:44:23:08", PARSED_ZGP, parse_zgp),
+        (
+            MOCK_Z3_SWITCH,
+            "Z3-_ff:ff:00:0f:e7:fe:95:cd-01-fc00",
+            PARSED_Z3_SWITCH,
+            parse_z3_switch,
+        ),
         (
             MOCK_Z3_ROTARY,
             "Z3-_ff:ff:00:0f:e7:fd:ba:b7-01-fc00",
