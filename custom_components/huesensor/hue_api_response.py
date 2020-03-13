@@ -1,7 +1,28 @@
 """Hue API data parsing for sensors."""
-import logging
 from typing import Any, Callable, Iterable, Dict, Optional, Tuple
 
+from aiohue.sensors import (
+    ZGP_SWITCH_BUTTON_1,
+    ZGP_SWITCH_BUTTON_2,
+    ZGP_SWITCH_BUTTON_3,
+    ZGP_SWITCH_BUTTON_4,
+    ZLL_SWITCH_BUTTON_1_INITIAL_PRESS,
+    ZLL_SWITCH_BUTTON_2_INITIAL_PRESS,
+    ZLL_SWITCH_BUTTON_3_INITIAL_PRESS,
+    ZLL_SWITCH_BUTTON_4_INITIAL_PRESS,
+    ZLL_SWITCH_BUTTON_1_HOLD,
+    ZLL_SWITCH_BUTTON_2_HOLD,
+    ZLL_SWITCH_BUTTON_3_HOLD,
+    ZLL_SWITCH_BUTTON_4_HOLD,
+    ZLL_SWITCH_BUTTON_1_SHORT_RELEASED,
+    ZLL_SWITCH_BUTTON_2_SHORT_RELEASED,
+    ZLL_SWITCH_BUTTON_3_SHORT_RELEASED,
+    ZLL_SWITCH_BUTTON_4_SHORT_RELEASED,
+    ZLL_SWITCH_BUTTON_1_LONG_RELEASED,
+    ZLL_SWITCH_BUTTON_2_LONG_RELEASED,
+    ZLL_SWITCH_BUTTON_3_LONG_RELEASED,
+    ZLL_SWITCH_BUTTON_4_LONG_RELEASED,
+)
 from homeassistant.const import STATE_OFF, STATE_ON
 
 REMOTE_MODELS = ("RWL", "ROM", "FOH", "ZGP", "Z3-")
@@ -50,13 +71,30 @@ FOH_BUTTONS = {
     98: "double_lower_press",
     99: "double_lower_release",
 }
-RWL_RESPONSE_CODES = {
-    "0": "_click",
-    "1": "_hold",
-    "2": "_click_up",
-    "3": "_hold_up",
+RWL_BUTTONS = {
+    ZLL_SWITCH_BUTTON_1_INITIAL_PRESS: "1_click",
+    ZLL_SWITCH_BUTTON_2_INITIAL_PRESS: "1_click",
+    ZLL_SWITCH_BUTTON_3_INITIAL_PRESS: "1_click",
+    ZLL_SWITCH_BUTTON_4_INITIAL_PRESS: "1_click",
+    ZLL_SWITCH_BUTTON_1_HOLD: "1_hold",
+    ZLL_SWITCH_BUTTON_2_HOLD: "2_hold",
+    ZLL_SWITCH_BUTTON_3_HOLD: "3_hold",
+    ZLL_SWITCH_BUTTON_4_HOLD: "4_hold",
+    ZLL_SWITCH_BUTTON_1_SHORT_RELEASED: "1_click_up",
+    ZLL_SWITCH_BUTTON_2_SHORT_RELEASED: "2_click_up",
+    ZLL_SWITCH_BUTTON_3_SHORT_RELEASED: "3_click_up",
+    ZLL_SWITCH_BUTTON_4_SHORT_RELEASED: "4_click_up",
+    ZLL_SWITCH_BUTTON_1_LONG_RELEASED: "1_hold_up",
+    ZLL_SWITCH_BUTTON_2_LONG_RELEASED: "2_hold_up",
+    ZLL_SWITCH_BUTTON_3_LONG_RELEASED: "3_hold_up",
+    ZLL_SWITCH_BUTTON_4_LONG_RELEASED: "4_hold_up",
 }
-TAP_BUTTONS = {34: "1_click", 16: "2_click", 17: "3_click", 18: "4_click"}
+TAP_BUTTONS = {
+    ZGP_SWITCH_BUTTON_1: "1_click",
+    ZGP_SWITCH_BUTTON_2: "2_click",
+    ZGP_SWITCH_BUTTON_3: "3_click",
+    ZGP_SWITCH_BUTTON_4: "4_click",
+}
 Z3_BUTTON = {
     1000: "initial_press",
     1001: "repeat",
@@ -96,10 +134,9 @@ def parse_sml(response: Dict[str, Any]) -> Dict[str, Any]:
             }
 
     elif response["type"] == "ZLLTemperature":
-        if response["state"]["temperature"] is not None:
-            data = {"temperature": response["state"]["temperature"] / 100.0}
-        else:
-            data = {"temperature": "No temperature data"}
+        temp = response["state"]["temperature"]
+        temp = temp / 100.0 if temp is not None else "No temperature data"
+        data = {"temperature": temp}
 
     elif response["type"] == "ZLLPresence":
         name_raw = response["name"]
@@ -107,10 +144,7 @@ def parse_sml(response: Dict[str, Any]) -> Dict[str, Any]:
         arr.insert(-1, "motion")
         name = " ".join(arr)
         hue_state = response["state"]["presence"]
-        if hue_state is True:
-            state = STATE_ON
-        else:
-            state = STATE_OFF
+        state = STATE_ON if hue_state is True else STATE_OFF
 
         data = {
             "model": "SML",
@@ -127,30 +161,22 @@ def parse_sml(response: Dict[str, Any]) -> Dict[str, Any]:
 
 def parse_zgp(response: Dict[str, Any]) -> Dict[str, Any]:
     """Parse the json response for a ZGPSWITCH Hue Tap."""
-    press = response["state"]["buttonevent"]
-    if press is None or press not in TAP_BUTTONS:
-        button = "No data"
-    else:
-        button = TAP_BUTTONS[press]
+    button = TAP_BUTTONS.get(response["state"]["buttonevent"], "No data")
 
-    data = {
+    return {
         "model": "ZGP",
         "name": response["name"],
         "state": button,
         "last_button_event": button,
         "last_updated": response["state"]["lastupdated"].split("T"),
     }
-    return data
 
 
 def parse_rwl(response: Dict[str, Any]) -> Dict[str, Any]:
     """Parse the json response for a RWL Hue remote."""
-    button = None
-    if response["state"]["buttonevent"]:
-        press = str(response["state"]["buttonevent"])
-        button = str(press)[0] + RWL_RESPONSE_CODES[press[-1]]
+    button = RWL_BUTTONS.get(response["state"]["buttonevent"])
 
-    data = {
+    return {
         "model": "RWL",
         "name": response["name"],
         "state": button,
@@ -160,37 +186,29 @@ def parse_rwl(response: Dict[str, Any]) -> Dict[str, Any]:
         "last_button_event": button,
         "last_updated": response["state"]["lastupdated"].split("T"),
     }
-    return data
 
 
 def parse_foh(response: Dict[str, Any]) -> Dict[str, Any]:
     """Parse the JSON response for a FOHSWITCH (type still = ZGPSwitch)."""
     press = response["state"]["buttonevent"]
-    if press is None or press not in FOH_BUTTONS:
-        button = "No data"
-    else:
-        button = FOH_BUTTONS[press]
+    button = FOH_BUTTONS.get(press, "No data")
 
-    data = {
+    return {
         "model": "FOH",
         "name": response["name"],
         "state": button,
         "last_button_event": button,
         "last_updated": response["state"]["lastupdated"].split("T"),
     }
-    return data
 
 
 def parse_z3_rotary(response: Dict[str, Any]) -> Dict[str, Any]:
     """Parse the json response for a Lutron Aurora Rotary Event."""
     turn = response["state"]["rotaryevent"]
+    dial = Z3_DIAL.get(turn, "No data")
     dial_position = response["state"]["expectedrotation"]
-    if turn is None or turn not in Z3_DIAL:
-        dial = "No data"
-    else:
-        dial = Z3_DIAL[turn]
 
-    data = {
+    return {
         "model": "Z3-",
         "name": response["name"],
         "dial_state": dial,
@@ -201,34 +219,24 @@ def parse_z3_rotary(response: Dict[str, Any]) -> Dict[str, Any]:
         "reachable": response["config"]["reachable"],
         "last_updated": response["state"]["lastupdated"].split("T"),
     }
-    return data
 
 
 def parse_z3_switch(response: Dict[str, Any]) -> Dict[str, Any]:
     """Parse the json response for a Lutron Aurora."""
     press = response["state"]["buttonevent"]
-    logging.warning(press)
-    if press is None or press not in Z3_BUTTON:
-        button = "No data"
-    else:
-        button = Z3_BUTTON[press]
+    button = Z3_BUTTON.get(press, "No data")
 
-    data = {
+    return {
         "last_button_event": button,
         "state": button,
         "last_updated": response["state"]["lastupdated"].split("T"),
     }
-    return data
 
 
 def _ident_raw_sensor(
     raw_sensor_data: Dict[str, Any]
 ) -> Tuple[Optional[str], Callable]:
     """Identify sensor types and return unique identifier and parser."""
-
-    def _default_parser(*x):
-        return x
-
     model_id = raw_sensor_data["modelid"][0:3]
     unique_sensor_id = raw_sensor_data["uniqueid"]
 
@@ -260,7 +268,7 @@ def _ident_raw_sensor(
             sensor_key = model_id + "_" + unique_sensor_id
             return sensor_key, parse_z3_switch
 
-    return None, _default_parser
+    return None, None
 
 
 def parse_hue_api_response(sensors: Iterable[Dict[str, Any]]):
