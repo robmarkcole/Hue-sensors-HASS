@@ -42,54 +42,6 @@ ENTITY_ATTRS = {
         "threshold_offset",
     ],
 }
-<<<<<<< HEAD
-=======
-FOH_BUTTONS = {
-    16: "left_upper_press",
-    20: "left_upper_release",
-    17: "left_lower_press",
-    21: "left_lower_release",
-    18: "right_lower_press",
-    22: "right_lower_release",
-    19: "right_upper_press",
-    23: "right_upper_release",
-    100: "double_upper_press",
-    101: "double_upper_release",
-    98: "double_lower_press",
-    99: "double_lower_release",
-}
-RWL_BUTTONS = {
-    ZLL_SWITCH_BUTTON_1_INITIAL_PRESS: "1_click",
-    ZLL_SWITCH_BUTTON_2_INITIAL_PRESS: "1_click",
-    ZLL_SWITCH_BUTTON_3_INITIAL_PRESS: "1_click",
-    ZLL_SWITCH_BUTTON_4_INITIAL_PRESS: "1_click",
-    ZLL_SWITCH_BUTTON_1_HOLD: "1_hold",
-    ZLL_SWITCH_BUTTON_2_HOLD: "2_hold",
-    ZLL_SWITCH_BUTTON_3_HOLD: "3_hold",
-    ZLL_SWITCH_BUTTON_4_HOLD: "4_hold",
-    ZLL_SWITCH_BUTTON_1_SHORT_RELEASED: "1_click_up",
-    ZLL_SWITCH_BUTTON_2_SHORT_RELEASED: "2_click_up",
-    ZLL_SWITCH_BUTTON_3_SHORT_RELEASED: "3_click_up",
-    ZLL_SWITCH_BUTTON_4_SHORT_RELEASED: "4_click_up",
-    ZLL_SWITCH_BUTTON_1_LONG_RELEASED: "1_hold_up",
-    ZLL_SWITCH_BUTTON_2_LONG_RELEASED: "2_hold_up",
-    ZLL_SWITCH_BUTTON_3_LONG_RELEASED: "3_hold_up",
-    ZLL_SWITCH_BUTTON_4_LONG_RELEASED: "4_hold_up",
-}
-TAP_BUTTONS = {
-    ZGP_SWITCH_BUTTON_1: "1_click",
-    ZGP_SWITCH_BUTTON_2: "2_click",
-    ZGP_SWITCH_BUTTON_3: "3_click",
-    ZGP_SWITCH_BUTTON_4: "4_click",
-}
-Z3_BUTTON = {
-    1000: "initial_press",
-    1001: "repeat",
-    1002: "short_release",
-    1003: "long_release",
-}
-Z3_DIAL = {1: "begin", 2: "end"}
->>>>>>> master
 
 
 def parse_sml(response: Dict[str, Any]) -> Dict[str, Any]:
