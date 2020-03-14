@@ -7,7 +7,7 @@
 [FOR COMMUNITY SUPPORT PLEASE USE THIS THREAD](https://community.home-assistant.io/t/hue-motion-sensors-remotes-custom-component)
 
 ## Overview
-This custom integration provides support for the [Hue motion sensors](https://www2.meethue.com/en-us/p/hue-motion-sensor/046677473389) and the Hue device tracker. Note that these sensors [are officially integrated with Home Assistant](https://www.home-assistant.io/integrations/hue/), but a different approach is taken in this custom integration.
+This custom integration provides support for the official [Hue motion sensors](https://www2.meethue.com/en-us/p/hue-motion-sensor/046677473389) and the Hue device tracker (allows tracking the mobile with the Hue app installed). Note that these sensors [are officially integrated with Home Assistant](https://www.home-assistant.io/integrations/hue/), but a different approach is taken in this custom integration.
 
 ## Installation
 
