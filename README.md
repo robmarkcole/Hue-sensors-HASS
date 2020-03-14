@@ -7,7 +7,7 @@
 [FOR COMMUNITY SUPPORT PLEASE USE THIS THREAD](https://community.home-assistant.io/t/hue-motion-sensors-remotes-custom-component)
 
 ## Overview
-This custom component provides support for Hue motion sensors, remotes, and some friends of Hue devices.
+This custom integration provides support for the [Hue motion sensors](https://www2.meethue.com/en-us/p/hue-motion-sensor/046677473389) and the Hue device tracker. Note that these sensors [are officially integrated with Home Assistant](https://www.home-assistant.io/integrations/hue/), but a different approach is taken in this custom integration.
 
 ## Installation
 
@@ -20,13 +20,9 @@ Once installed add to your configuration:
 ```
 binary_sensor:
   - platform: huesensor
-remote:
-  - platform: huesensor
 device_tracker:
   - platform: huesensor
 ```
-
-Hue dimmer remotes can be used for a click and long press (hold button for 2 sec and see LED blink twice).
 
 As per [this issue](https://github.com/robmarkcole/Hue-sensors-HASS/issues/48) it is recommended to use the default naming options in the Hue app in order to ensure sensible sensor names in HA.
 
@@ -68,20 +64,6 @@ Temperature, light level and other data in the sensor attributes can be broken o
 <img src="https://github.com/robmarkcole/Hue-sensors-HASS/blob/master/hue.png" width="500">
 </p>
 
-## Track Updates
-
-This custom component can be tracked with the help of [HACS](https://hacs.xyz/).
-
-## Debugging
-
-If you get an error when using this component, the procedure for debugging is as follows.
-
-1. Open an issue here on Github. Include the error message, release number of the custom component.
-2. Download the Hue API response following the instructions [here](https://www.hackster.io/robin-cole/hijack-a-hue-remote-to-control-anything-with-home-assistant-5239a4#toc-hue-api-1). Save into a .json file.
-3. Parse the json file using the [hue_sensors package](https://pypi.python.org/pypi/hue-sensors/1.2) and report the device ID (e.g. RWL_06-02) that is causing your issue.
-
-There are a couple of examples of this process in the debugging_issues folder.
-
 ## Developers
 
 * Create venv -> `$ python3 -m venv venv`
@@ -94,7 +76,7 @@ There are a couple of examples of this process in the debugging_issues folder.
 
 Please format code usign [Black](https://github.com/psf/black) before opening a pull request.
 
-A big thanks to [@yottatsa](https://github.com/yottatsa) for his many contributions to this work, check out his profile!
+A big thanks to [Atsuko Ito](https://github.com/yottatsa) and [Eugenio Panadero](https://github.com/azogue) for their many contributions to this work!
 
 ## ✨ Support this work
 

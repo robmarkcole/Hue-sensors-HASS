@@ -20,12 +20,8 @@ from .sensor_samples import (
     MOCK_GEOFENCE,
     MOCK_ZGP,
     MOCK_ZLLPresence,
-    MOCK_RWL,
-    MOCK_Z3_ROTARY,
 )
 
-DEV_ID_REMOTE_1 = "ZGP_00:44:23:08"
-DEV_ID_REMOTE_2 = "RWL_00:17:88:01:10:3e:3a:dc-02"
 DEV_ID_SENSOR_1 = "SML_00:17:88:01:02:00:af:28-02"
 
 
