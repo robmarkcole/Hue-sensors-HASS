@@ -1,26 +1,10 @@
 """Hue API data parsing for sensors."""
-import logging
-from typing import Any, Callable, Iterable, Dict, Optional, Tuple
+from typing import Any, Iterable, Dict
 
 from homeassistant.const import STATE_OFF, STATE_ON
 
-REMOTE_MODELS = ("RWL", "ROM", "FOH", "ZGP", "Z3-")
 BINARY_SENSOR_MODELS = ("SML",)
 ENTITY_ATTRS = {
-    "RWL": ["last_updated", "last_button_event", "battery", "on", "reachable"],
-    "ROM": ["last_updated", "last_button_event", "battery", "on", "reachable"],
-    "ZGP": ["last_updated", "last_button_event"],
-    "FOH": ["last_updated", "last_button_event"],
-    "Z3-": [
-        "last_updated",
-        "last_button_event",
-        "battery",
-        "on",
-        "reachable",
-        "dial_state",
-        "dial_position",
-        "software_update",
-    ],
     "SML": [
         "light_level",
         "battery",
@@ -36,34 +20,6 @@ ENTITY_ATTRS = {
         "threshold_offset",
     ],
 }
-FOH_BUTTONS = {
-    16: "left_upper_press",
-    20: "left_upper_release",
-    17: "left_lower_press",
-    21: "left_lower_release",
-    18: "right_lower_press",
-    22: "right_lower_release",
-    19: "right_upper_press",
-    23: "right_upper_release",
-    100: "double_upper_press",
-    101: "double_upper_release",
-    98: "double_lower_press",
-    99: "double_lower_release",
-}
-RWL_RESPONSE_CODES = {
-    "0": "_click",
-    "1": "_hold",
-    "2": "_click_up",
-    "3": "_hold_up",
-}
-TAP_BUTTONS = {34: "1_click", 16: "2_click", 17: "3_click", 18: "4_click"}
-Z3_BUTTON = {
-    1000: "initial_press",
-    1001: "repeat",
-    1002: "short_release",
-    1003: "long_release",
-}
-Z3_DIAL = {1: "begin", 2: "end"}
 
 
 def parse_sml(response: Dict[str, Any]) -> Dict[str, Any]:
