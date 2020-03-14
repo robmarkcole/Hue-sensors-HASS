@@ -9,6 +9,15 @@
 ## Overview
 This custom integration provides support for the official [Hue motion sensors](https://www2.meethue.com/en-us/p/hue-motion-sensor/046677473389) and the Hue device tracker (allows tracking the mobile with the Hue app installed). Note that these sensors [are officially integrated with Home Assistant](https://www.home-assistant.io/integrations/hue/), but a different approach is taken in this custom integration.
 
+The _Hue motion_ devices are handled as separate entities for motion (`binary_sensor`), light level, and temperature (`sensor` entities in HA).
+
+* The approach here is to add them as unique `binary_sensor` entities, with the light level and temperature values attached to its state attributes.
+* Also, this integration offers a 1Hz refresh update for this sensors, in opposition to current 5-sec scan interval in the official integration. 
+
+**Be advised that the increased update rate induced to the Hue bridges by this custom integration may raise connectivity problems**, which would appear as errors in the official hue integration.
+
+If you experience this kind of issues, please disable this integration and check again before opening a new issue in HA Core. The problem may be originated here. 
+
 ## Installation
 
 Place the `custom_components` folder in your configuration directory (or add its contents to an existing `custom_components` folder). You need to set up your [Hue bridge](https://www.home-assistant.io/integrations/hue) first. Alternatively install via [HACS](https://hacs.xyz/).
