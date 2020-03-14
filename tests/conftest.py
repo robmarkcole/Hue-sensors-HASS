@@ -18,7 +18,6 @@ from custom_components.huesensor.data_manager import (
 )
 from .sensor_samples import (
     MOCK_GEOFENCE,
-    MOCK_ZGP,
     MOCK_ZLLPresence,
 )
 
@@ -105,9 +104,7 @@ def mock_hass():
     """Mock HA object for tests, including some sensors in hue integration."""
     hass = MagicMock(spec=HomeAssistant)
     hass.data = {
-        HUE_DOMAIN: _mock_hue_bridges(
-            [_make_mock_bridge(0, MOCK_ZGP, MOCK_ZLLPresence)]
-        )
+        HUE_DOMAIN: _mock_hue_bridges([_make_mock_bridge(0, MOCK_ZLLPresence)])
     }
 
     return hass
@@ -121,7 +118,7 @@ def mock_hass_2_bridges():
         HUE_DOMAIN: _mock_hue_bridges(
             [
                 _make_mock_bridge(0, MOCK_Z3_ROTARY, MOCK_ZLLPresence),
-                _make_mock_bridge(1, MOCK_ZGP, MOCK_RWL, MOCK_GEOFENCE),
+                _make_mock_bridge(1, MOCK_RWL, MOCK_GEOFENCE),
             ]
         )
     }

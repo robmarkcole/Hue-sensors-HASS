@@ -16,7 +16,6 @@ from .conftest import (
     entity_test_added_to_hass,
     patch_async_track_time_interval,
 )
-from .sensor_samples import MOCK_RWL
 
 
 async def test_integration(mock_hass_2_bridges, caplog):
