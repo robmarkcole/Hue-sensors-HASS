@@ -7,26 +7,17 @@
 [FOR COMMUNITY SUPPORT PLEASE USE THIS THREAD](https://community.home-assistant.io/t/hue-motion-sensors-remotes-custom-component)
 
 ## Overview
-This custom integration provides support for the official [Hue motion sensors](https://www2.meethue.com/en-us/p/hue-motion-sensor/046677473389) and the Hue device tracker (allows tracking the mobile with the Hue app installed). Note that these sensors [are officially integrated with Home Assistant](https://www.home-assistant.io/integrations/hue/), but a different approach is taken in this custom integration.
+This custom integration provides support for the official [Hue motion sensors](https://www2.meethue.com/en-us/p/hue-motion-sensor/046677473389) and the Hue device tracker (allows tracking the mobile with the Hue app installed). Note that these sensors [are officially integrated with Home Assistant](https://www.home-assistant.io/integrations/hue/), but a *different* approach is taken in this custom integration. In the official integration the Hue motion sensors are treated as three separate entities per device: one each for motion, light level, and temperature. The approach in this custom integration is to expose the light level and temperature values as attributes of a single `binary_sensor` entity. Also in this custom integration the device data is updated every second, whilst in the official integration data is only every 5 seconds updated. 
 
-The _Hue motion_ devices are handled as separate entities for motion (`binary_sensor`), light level, and temperature (`sensor` entities in HA).
-
-* The approach here is to add them as unique `binary_sensor` entities, with the light level and temperature values attached to its state attributes.
-* Also, this integration offers a 1Hz refresh update for this sensors, in opposition to current 5-sec scan interval in the official integration. 
-
-**Be advised that the increased update rate induced to the Hue bridges by this custom integration may raise connectivity problems**, which would appear as errors in the official hue integration.
-
-If you experience this kind of issues, please disable this integration and check again before opening a new issue in HA Core. The problem may be originated here. 
+**Be advised that the increased update of this custom integration may cause connectivity problems which can result in errors in the official hue integration**, please do not create any issue for this. If you can't live with these errors, do not use this custom integration.
 
 ## Installation
-
 Place the `custom_components` folder in your configuration directory (or add its contents to an existing `custom_components` folder). You need to set up your [Hue bridge](https://www.home-assistant.io/integrations/hue) first. Alternatively install via [HACS](https://hacs.xyz/).
 
 ## Configuration
-
 Once installed add to your configuration:
 
-```
+```yaml
 binary_sensor:
   - platform: huesensor
 device_tracker:
@@ -36,10 +27,9 @@ device_tracker:
 As per [this issue](https://github.com/robmarkcole/Hue-sensors-HASS/issues/48) it is recommended to use the default naming options in the Hue app in order to ensure sensible sensor names in HA.
 
 ## Front end display
-
 To add the following group to your HA frontend, add the following to `groups.yaml` (obviously editing to use your sensors):
 
-```
+```yaml
 default_view:
   view: yes
   entities:
@@ -54,7 +44,7 @@ Hue:
 
 Temperature, light level and other data in the sensor attributes can be broken out into their own sensor using a template sensor, for example:
 
-```
+```yaml
 - platform: template
   sensors:
 
@@ -74,7 +64,6 @@ Temperature, light level and other data in the sensor attributes can be broken o
 </p>
 
 ## Developers
-
 * Create venv -> `$ python3 -m venv venv`
 * Use venv -> `$ source venv/bin/activate`
 * Install requirements -> `$ pip install -r requirements.txt` & `$ pip install -r requirements-dev.txt`
@@ -82,13 +71,11 @@ Temperature, light level and other data in the sensor attributes can be broken o
 * Black format -> `$ venv/bin/black custom_components/*` (or setup VScode for format on save)
 
 ## Contributors
-
 Please format code usign [Black](https://github.com/psf/black) before opening a pull request.
 
 A big thanks to [Atsuko Ito](https://github.com/yottatsa) and [Eugenio Panadero](https://github.com/azogue) for their many contributions to this work!
 
 ## ✨ Support this work
-
 https://github.com/sponsors/robmarkcole
 
 If you or your business find this work useful please consider becoming a sponsor at the link above, this really helps justify the time I invest in maintaining this repo. As we say in England, 'every little helps' - thanks in advance!
