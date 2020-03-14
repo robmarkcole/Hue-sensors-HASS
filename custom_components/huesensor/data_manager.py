@@ -12,14 +12,11 @@ from .hue_api_response import (
     BINARY_SENSOR_MODELS,
     ENTITY_ATTRS,
     parse_hue_api_response,
-    REMOTE_MODELS,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
-_KNOWN_MODEL_IDS = tuple(BINARY_SENSOR_MODELS + REMOTE_MODELS)
-
-# Scan interval for remotes and binary sensors is set to < 1s
+# Scan interval for binary sensors is set to < 1s
 # just to ~ensure that an update is called for each HA tick,
 # as using an exact 1s misses some of the ticks
 DEFAULT_SCAN_INTERVAL = timedelta(seconds=0.5)
@@ -51,7 +48,7 @@ class HueSensorData:
         self._registered_platforms = {}
 
     async def _iter_data(
-        self, models_filter: Tuple[str] = _KNOWN_MODEL_IDS
+        self, models_filter: Tuple[str] = BINARY_SENSOR_MODELS
     ) -> AsyncIterable[Tuple[bool, str, str, dict]]:
         async for bridge in async_get_bridges(self.hass):
             await bridge.sensor_manager.coordinator.async_request_refresh()
@@ -137,16 +134,6 @@ class HueSensorData:
                     scan_interval.total_seconds(),
                     entity_cls.__name__,
                 )
-            elif scan_interval < self._scan_interval:
-                _LOGGER.info(
-                    "Re-Configure a scan_interval of %.2f s for %s devices"
-                    " (before it was %.2f s)",
-                    scan_interval.total_seconds(),
-                    entity_cls.__name__,
-                    self._scan_interval.total_seconds(),
-                )
-                await self.async_stop_scheduler()
-                self._scan_interval = scan_interval
 
     async def async_add_platform_entities(
         self, entity_cls, platform_models, func_add_entities, scan_interval,
