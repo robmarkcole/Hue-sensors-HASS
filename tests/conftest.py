@@ -106,17 +106,6 @@ def mock_hass():
     """Mock HA object for tests, including some sensors in hue integration."""
     hass = MagicMock(spec=HomeAssistant)
     hass.data = {
-        HUE_DOMAIN: _mock_hue_bridges([_make_mock_bridge(0, MOCK_ZLLPresence)])
-    }
-
-    return hass
-
-
-@pytest.fixture
-def mock_hass_2_bridges():
-    """Mock HA object for tests, with some sensors in 2 bridges."""
-    hass = MagicMock(spec=HomeAssistant)
-    hass.data = {
         HUE_DOMAIN: _mock_hue_bridges(
             [
                 _make_mock_bridge(
