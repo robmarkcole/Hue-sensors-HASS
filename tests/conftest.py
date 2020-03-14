@@ -19,6 +19,8 @@ from custom_components.huesensor.data_manager import (
 from .sensor_samples import (
     MOCK_GEOFENCE,
     MOCK_ZLLPresence,
+    MOCK_ZLLLightlevel,
+    MOCK_ZLLTemperature,
 )
 
 DEV_ID_SENSOR_1 = "SML_00:17:88:01:02:00:af:28-02"
@@ -117,8 +119,13 @@ def mock_hass_2_bridges():
     hass.data = {
         HUE_DOMAIN: _mock_hue_bridges(
             [
-                _make_mock_bridge(0, MOCK_Z3_ROTARY, MOCK_ZLLPresence),
-                _make_mock_bridge(1, MOCK_RWL, MOCK_GEOFENCE),
+                _make_mock_bridge(
+                    0,
+                    MOCK_ZLLPresence,
+                    MOCK_ZLLLightlevel,
+                    MOCK_ZLLTemperature,
+                ),
+                _make_mock_bridge(1, MOCK_GEOFENCE),
             ]
         )
     }

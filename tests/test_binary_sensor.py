@@ -16,7 +16,6 @@ from custom_components.huesensor.hue_api_response import (
 )
 
 from .conftest import (
-    DEV_ID_REMOTE_1,
     DEV_ID_SENSOR_1,
     entity_test_added_to_hass,
     patch_async_track_time_interval,
@@ -84,7 +83,6 @@ async def test_platform_binary_sensor_setup(mock_hass, caplog):
             assert len(data_manager.registered_entities) == 1
             assert data_manager._scan_interval == timedelta(seconds=2)
             assert len(data_manager.data) == 1
-            assert DEV_ID_REMOTE_1 not in data_manager.data
             assert DEV_ID_SENSOR_1 in data_manager.data
             assert len(data_manager.sensors) == 0
 
