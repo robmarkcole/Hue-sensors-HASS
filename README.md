@@ -8,7 +8,9 @@
 
 For Hue & Friends of Hue remotes checkout [Hue-remotes-HASS](https://github.com/robmarkcole/Hue-remotes-HASS)
 
-**Note:** this repo is now in stability mode, our priority is maintaining existing functionality and minimising work for the maintainers. Please do not open feature request issues or create PR adding new functionality. Only PR to address breaking changes in HA compatibility will be considered.
+**PLEASE BE ADVISED: you are strongly encouraged to use the official Hue sensor integration, and cease using this custom integration.** 
+
+Longer explanation: sensor support in the official hue integration is more feature-complete than this custom integration, and if you're already using Hue-remotes-HASS, then the refresh rate for sensors in the official integration will be automatically the fastest possible. Since we want to migrate users to the official integration, please do not open feature request issues or create PR adding new functionality to this custom integration, as they will not be considered. This custom integration will remain available until the next breaking change with Home Assistant, at which point this repo will be archived.
 
 ## Overview
 This custom integration provides support for the official [Hue motion sensors](https://www2.meethue.com/en-us/p/hue-motion-sensor/046677473389) and the Hue device tracker (allows tracking the mobile with the Hue app installed). Note that these sensors [are officially integrated with Home Assistant](https://www.home-assistant.io/integrations/hue/), but a *different* approach is taken in this custom integration. In the official integration the Hue motion sensors are treated as three separate entities per device: one each for motion, light level, and temperature. The approach in this custom integration is to expose the light level and temperature values as attributes of a single `binary_sensor` entity. Also in this custom integration the device data is updated every second, whilst in the official integration data is only every 5 seconds updated. 
