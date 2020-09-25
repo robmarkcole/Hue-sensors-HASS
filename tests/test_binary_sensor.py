@@ -3,8 +3,8 @@ import logging
 from datetime import timedelta
 
 import pytest
-
 from homeassistant.components.hue import DOMAIN as HUE_DOMAIN
+
 from custom_components.huesensor import DOMAIN
 from custom_components.huesensor.binary_sensor import async_setup_platform
 from custom_components.huesensor.data_manager import HueSensorData
@@ -14,8 +14,8 @@ from custom_components.huesensor.hue_api_response import (
 )
 
 from .conftest import (
-    add_sensor_data_to_bridge,
     DEV_ID_SENSOR_1,
+    add_sensor_data_to_bridge,
     entity_test_added_to_hass,
     patch_async_track_time_interval,
 )
@@ -83,9 +83,7 @@ def test_parse_sensor_raw_data(
     """Test data parsers for known sensors."""
     assert parser_func(raw_response) == parsed_response
     with caplog.at_level(level=logging.WARNING):
-        assert parse_hue_api_response([raw_response]) == {
-            sensor_key: parsed_response
-        }
+        assert parse_hue_api_response([raw_response]) == {sensor_key: parsed_response}
         assert len(caplog.messages) == 0
 
 
@@ -104,9 +102,7 @@ async def test_platform_binary_sensor_setup(mock_hass, caplog):
     with caplog.at_level(logging.DEBUG):
         with patch_async_track_time_interval():
             # setup binary sensor
-            await async_setup_platform(
-                mock_hass, config_bs, _add_entity_counter
-            )
+            await async_setup_platform(mock_hass, config_bs, _add_entity_counter)
             assert sum(entity_counter) == 1
 
             assert DOMAIN in mock_hass.data
@@ -153,13 +149,9 @@ async def test_platform_binary_sensor_setup(mock_hass, caplog):
             assert len(caplog.messages) == 3
 
             # Change the temperature state on bridge and call update
-            temp_data_st = hue_bridge.sensors["ZLLTemperature_0_2"].raw[
-                "state"
-            ]
+            temp_data_st = hue_bridge.sensors["ZLLTemperature_0_2"].raw["state"]
             temp_data_st["temperature"] = 1845
-            hue_bridge.sensors["ZLLTemperature_0_2"].raw[
-                "state"
-            ] = temp_data_st
+            hue_bridge.sensors["ZLLTemperature_0_2"].raw["state"] = temp_data_st
             await data_manager.async_update_from_bridges()
             assert bin_sensor.device_state_attributes["temperature"] == 18.45
             assert data_coord_b1.async_request_refresh.call_count == 3

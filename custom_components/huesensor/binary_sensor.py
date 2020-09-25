@@ -6,11 +6,7 @@ from homeassistant.components.sensor import PLATFORM_SCHEMA  # noqa: F401
 from homeassistant.const import CONF_SCAN_INTERVAL, STATE_ON
 
 from . import DOMAIN
-from .data_manager import (
-    DEFAULT_SCAN_INTERVAL,
-    HueSensorBaseDevice,
-    HueSensorData,
-)
+from .data_manager import DEFAULT_SCAN_INTERVAL, HueSensorBaseDevice, HueSensorData
 from .hue_api_response import BINARY_SENSOR_MODELS
 
 _LOGGER = logging.getLogger(__name__)
@@ -19,9 +15,7 @@ TYPE_GEOFENCE = "Geofence"
 DEVICE_CLASSES = {"SML": "motion"}
 
 
-async def async_setup_platform(
-    hass, config, async_add_entities, discovery_info=None
-):
+async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Initialise Hue Bridge connection."""
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = HueSensorData(hass)

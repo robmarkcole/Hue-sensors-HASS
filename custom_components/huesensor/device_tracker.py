@@ -5,9 +5,7 @@ from datetime import timedelta
 
 import homeassistant.util.dt as dt_util
 from homeassistant.components import zone
-from homeassistant.components.device_tracker import (  # noqa: F401
-    PLATFORM_SCHEMA,
-)
+from homeassistant.components.device_tracker import PLATFORM_SCHEMA  # noqa: F401
 from homeassistant.components.device_tracker.const import CONF_SCAN_INTERVAL
 from homeassistant.components.device_tracker.legacy import DeviceScanner
 from homeassistant.const import (
@@ -56,9 +54,7 @@ class HueDeviceScanner(DeviceScanner):
             "dev_id": slugify("hue_{}".format(sensor.name)),
             "host_name": sensor.name,
             "attributes": {
-                "last_updated": dt_util.as_local(
-                    dt_util.parse_datetime(last_updated)
-                ),
+                "last_updated": dt_util.as_local(dt_util.parse_datetime(last_updated)),
                 "unique_id": sensor.uniqueid,
             },
         }

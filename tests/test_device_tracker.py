@@ -4,8 +4,8 @@ from unittest.mock import MagicMock, patch
 
 from custom_components.huesensor import DOMAIN
 from custom_components.huesensor.device_tracker import (
-    async_setup_scanner,
     HueDeviceScanner,
+    async_setup_scanner,
 )
 
 from .conftest import MockAsyncCounter
