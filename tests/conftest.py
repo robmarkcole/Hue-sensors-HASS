@@ -2,24 +2,26 @@
 from copy import deepcopy
 from unittest.mock import MagicMock, patch
 
+import pytest
 from aiohue import Bridge
 from aiohue.sensors import GenericSensor
-from homeassistant.core import HomeAssistant
-from homeassistant.components.hue import DOMAIN as HUE_DOMAIN, HueBridge
+from homeassistant.components.hue import DOMAIN as HUE_DOMAIN
+from homeassistant.components.hue import HueBridge
 from homeassistant.components.hue.sensor_base import SensorManager
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import slugify
-import pytest
 
 from custom_components.huesensor.data_manager import (
     BINARY_SENSOR_MODELS,
     HueSensorBaseDevice,
     HueSensorData,
 )
+
 from .sensor_samples import (
     MOCK_GEOFENCE,
-    MOCK_ZLLPresence,
     MOCK_ZLLLightlevel,
+    MOCK_ZLLPresence,
     MOCK_ZLLTemperature,
 )
 
@@ -27,7 +29,8 @@ DEV_ID_SENSOR_1 = "SML_00:17:88:01:02:00:af:28-02"
 
 
 async def entity_test_added_to_hass(
-    data_manager: HueSensorData, entity: HueSensorBaseDevice,
+    data_manager: HueSensorData,
+    entity: HueSensorBaseDevice,
 ):
     """Test routine to mock the internals of async_added_to_hass."""
     entity.hass = data_manager.hass

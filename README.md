@@ -75,6 +75,9 @@ Temperature, light level and other data in the sensor attributes can be broken o
 * Run tests -> `$ venv/bin/py.test --cov=custom_components tests/ -vv -p no:warnings`
 * Black format -> `$ venv/bin/black custom_components/*` (or setup VScode for format on save)
 
+### About GitHub Actions
+This repo has GitHub Actions. It tests HACS, Hassfest, and flake8. It automatically pushes formatting with isort and black. See a bit more info [here](https://github.com/KTibow/ha-blueprint#readme).
+
 ## Contributors
 Please format code usign [Black](https://github.com/psf/black) before opening a pull request.
 

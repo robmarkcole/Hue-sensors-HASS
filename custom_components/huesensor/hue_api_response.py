@@ -1,5 +1,5 @@
 """Hue API data parsing for sensors."""
-from typing import Any, Callable, Iterable, Dict, Optional, Tuple
+from typing import Any, Callable, Dict, Iterable, Optional, Tuple
 
 from homeassistant.const import STATE_OFF, STATE_ON
 

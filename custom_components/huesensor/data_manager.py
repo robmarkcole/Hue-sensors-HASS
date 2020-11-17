@@ -1,18 +1,15 @@
 """The huesensors component."""
 import asyncio
-from datetime import timedelta
 import logging
+from datetime import timedelta
 from typing import AsyncIterable, Set, Tuple
 
-from homeassistant.components.hue import DOMAIN as HUE_DOMAIN, HueBridge
+from homeassistant.components.hue import DOMAIN as HUE_DOMAIN
+from homeassistant.components.hue import HueBridge
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.event import async_track_time_interval
 
-from .hue_api_response import (
-    BINARY_SENSOR_MODELS,
-    ENTITY_ATTRS,
-    parse_hue_api_response,
-)
+from .hue_api_response import BINARY_SENSOR_MODELS, ENTITY_ATTRS, parse_hue_api_response
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -89,7 +86,9 @@ class HueSensorData:
                 _LOGGER.info(f"Cancelling old time tracker")
                 self._update_listener()
             self._update_listener = async_track_time_interval(
-                self.hass, self.async_update_from_bridges, self._scan_interval,
+                self.hass,
+                self.async_update_from_bridges,
+                self._scan_interval,
             )
             self.available = True
 
@@ -136,7 +135,11 @@ class HueSensorData:
                 )
 
     async def async_add_platform_entities(
-        self, entity_cls, platform_models, func_add_entities, scan_interval,
+        self,
+        entity_cls,
+        platform_models,
+        func_add_entities,
+        scan_interval,
     ):
         """Add sensor entities from platform setups."""
         for model in platform_models:
