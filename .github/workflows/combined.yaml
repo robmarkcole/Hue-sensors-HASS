@@ -46,7 +46,8 @@ jobs:
           python -m pip install --upgrade flake8 wemake-python-styleguide
       - name: Run pytest
         run: |
-          pip install pytest
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
           pytest
       - name: Lint with flake8
         run: |
