@@ -3,6 +3,7 @@
     "name": "Hue sensor custom component",
     "documentation": "https://github.com/robmarkcole/Hue-sensors-HASS",
     "requirements": [],
+    "version": "3.1.0",
     "dependencies": [
         "hue"
     ],
