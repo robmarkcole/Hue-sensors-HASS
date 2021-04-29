@@ -17,13 +17,6 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CATEGORY: integration
-  validate_hassfest:
-    name: Hassfest
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Validate
-        uses: home-assistant/actions/hassfest@master
   test_advice_flake8:
     name: Test + advice with flake8
     runs-on: ubuntu-latest
